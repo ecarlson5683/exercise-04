@@ -421,6 +421,7 @@ function to see if you can get that to work.</li>
 <pre class="r"><code>True_solution_list &lt;- intersect(valid_list, solution_list)
 str(True_solution_list)</code></pre>
 <pre><code>##  chr [1:8336] &quot;AA&quot; &quot;AB&quot; &quot;ABANDONED&quot; &quot;ABILITIES&quot; &quot;ABILITY&quot; &quot;ABLE&quot; ...</code></pre>
+<p>There are 8,336 words.</p>
 </div>
 <div id="step-3" class="section level2">
 <h2>Step 3</h2>
@@ -437,6 +438,14 @@ characters long.</p>
 <p>Once your function works, run it and assign the result to a variable
 called solution.</p>
 <p>solution &lt;- pick_solution(solution_list)</p>
+<pre class="r"><code>pick_solution &lt;- function(word){
+  True_solution_list &lt;- subset(True_solution_list, nchar(True_solution_list) == 5) # Keep only 5 letter long words all words
+  str_split_1(sample(True_solution_list, 1), &quot;&quot;) # randomly select a 5-letter word and make it 5 distinct characters
+}
+
+solution &lt;- pick_solution(word)
+print(solution)</code></pre>
+<pre><code>## [1] &quot;S&quot; &quot;H&quot; &quot;E&quot; &quot;E&quot; &quot;T&quot;</code></pre>
 </div>
 <div id="step-4" class="section level2">
 <h2>Step 4</h2>

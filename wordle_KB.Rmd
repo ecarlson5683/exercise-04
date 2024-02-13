@@ -42,6 +42,7 @@ str(True_solution_list)
 
 ```
 
+There are 8,336 words. 
 
 ## Step 3
 Write a custom function called pick_solution() that [1] removes all words from solution_list that are not 5 letters in length, [2] then randomly chooses a single word from those that remain, and [3] then splits that word into a vector of single-character elements. You should be able to pass your solution_list vector as the argument to the function.
@@ -53,6 +54,13 @@ Once your function works, run it and assign the result to a variable called solu
 solution <- pick_solution(solution_list)
 
 ```{r}
+pick_solution <- function(word){
+  True_solution_list <- subset(True_solution_list, nchar(True_solution_list) == 5) # Keep only 5 letter long words all words
+  str_split_1(sample(True_solution_list, 1), "") # randomly select a 5-letter word and make it 5 distinct characters
+}
+
+solution <- pick_solution(word)
+print(solution)
 ```
 
 ## Step 4
