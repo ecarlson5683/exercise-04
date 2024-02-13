@@ -3,6 +3,7 @@ title: "wordle_KB"
 output: html_document
 date: "2024-02-12"
 ---
+
 # Creating a Wordle Game
 The rules of Wordle are simple: A player has SIX tries to guess a 5-letter word that has been selected at random from a list of possible words. Guesses need to be valid 5-letter words. After each guess, a player receives feedback about how close their guess was to the word, which provides information they can use to try to solve the puzzle. This feedback lets you know whether each letter your guess is either [1] in the solution word and in the correct spot, [2] in the solution word but in the wrong position, or [3] not in the solution word. In app/browser versions of Wordle, this feedback is provided visually using colors, but that need not be the case.
 
@@ -29,10 +30,33 @@ str(valid_list)
 str(solution_list)
 ```
 
-## R Markdown
+## Step 2 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+- Winnow your variable solution_list to only include words that are included in valid_list. There are multiple ways that you could do this, but the set operation function, intersection() is an easy way. 
+- Use R help to look at the documentation for the inersection() function to see if you can get that to work. 
+- `How many words are in your updated solution_list vector?`
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+True_solution_list <- intersect(valid_list, solution_list)
+str(True_solution_list)
+
+```
+
+
+## Step 3
+Write a custom function called pick_solution() that [1] removes all words from solution_list that are not 5 letters in length, [2] then randomly chooses a single word from those that remain, and [3] then splits that word into a vector of single-character elements. You should be able to pass your solution_list vector as the argument to the function.
+
+As a bonus, you might include a second argument for your pick_solution() function called “word_length” that makes your function flexible enough to select a solution word that is something other than 5 characters long.
+
+Once your function works, run it and assign the result to a variable called solution.
+
+solution <- pick_solution(solution_list)
+
+```{r}
+```
+
+## Step 4
+Now, to tackle the bulk of the problem, create two more functions. The first should be called play_wordle() and it should take three arguments: [1] the answer to the puzzle (the value of your solution variable), [2] a list of valid guesses (the contents of your valid_list variable), and [3] a value for “number of guesses”, which you should set to the original Wordle game default of 6.
+
 
 
