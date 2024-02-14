@@ -12,35 +12,34 @@ editor_options:
 
 The rules of **Wordle** are simple: A player has SIX tries to guess a 5-letter word that has been selected at random from a list of possible words. Guesses need to be valid 5-letter words. After each guess, a player receives feedback about how close their guess was to the word, which provides information they can use to try to solve the puzzle. This feedback lets you know whether each letter your guess is either [1] *in the solution word and in the correct spot*, [2] *in the solution word but in the wrong position*, or [3] *not in the solution word*. In app/browser versions of **Wordle**, this feedback is provided visually using colors, but that need not be the case.
 
-This week's programming exercise is to work with a partner to get as far along as you can writing ***R*** code that allows you to play **Wordle** to your heart's content using ***R***/***RStudio***!
-
-The assignment and steps below were inspired by [this fun blog post](https://statisticaloddsandends.wordpress.com/2022/01/18/playing-wordle-in-r/)... but before you reference it or other online sites, try to tackle this coding exercise on your own.
+The assignment and steps below were inspired by [this fun blog post](https://statisticaloddsandends.wordpress.com/2022/01/18/playing-wordle-in-r/)
 
 ## Preliminaries
 
-Go to https://github.com/difiore/ada-2024-datasets, download the following two data files, and add them to your repo:
+Two data files were downloaded from https://github.com/difiore/ada-2024-datasets to repo:
 
 collins-scrabble-words-2019.txt
 google-10000-english-usa-no-swears.txt
 
-The first of these files (279,497 lines long) contains a list of “Official Scrabble Words” in the English language based on the ***Collins English Dictionary*** published by HarperCollins. The first line in the file is the word “words” and is used as a header.
+The first (279,497 lines long) contains a list of “Official Scrabble Words” in the English language based on the ***Collins English Dictionary*** published by HarperCollins. The first line in the file is the header “words”.
 
-The second of these files (9885 lines long) contains a list of ~10,000 of the most common words in the English language, based on data compiled by Google, and omitting common swear words. Again, the first line is the word “words” and is used as a header.
+The second (9885 lines long) contains a list of ~10,000 of the most common words in the English language, based on data compiled by Google, and omitting common swear words. The first line in the file is the header “words”.
 
 ```{r}
-valid_file <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/collins-scrabble-words-2019.txt"
+valid_file <- "https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt"
 
-solution_file <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/google-10000-english-usa-no-swears.txt"
+solution_file <- "https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt"
 ```
 
 
 #### Introduction {.unnumbered}
 
-Before we begin programming, an important first step is to break down the problem we are trying to down into discrete pieces... What do we need to do to **set** up a Wordle game? What **steps** does game play need to follow? What has to be **evaluated** at each step? How does the game **end**?
+Step 0: Break down the problem into discrete pieces... What do we need to do to **set** up a Wordle game? What **steps** does game play need to follow? What has to be **evaluated** at each step? How does the game **end**?
 
-As an early step, for example, we need to choose a mystery "solution" word that players will try to guess. We will use the list of the most common words in the English language to do this as a possible source of solution words for the puzzle.
+**Things to do**
 
-Additionally, we also need to establish a dictionary of "valid" words that players can guess, and for that we will use the list of Official Scrabble Words.
+* Choose a mystery "solution" word that players will try to guess. We will use the list of the most common words in the English language to do this as a possible source of solution words for the puzzle.
+* Establish a dictionary of "valid" words that players can guess. We will use the list of Official Scrabble Words.
 
 > **NOTE:** The list of possible "solution" words used in the original Wordle puzzle consists of ~2100 5-letter words, while the list of "valid" words that can be used as guesses totals ~13,000. How many 5-letter words are in each of the two data files you have downloaded?
 
@@ -53,15 +52,16 @@ Additionally, we also need to establish a dictionary of "valid" words that playe
 ```{r}
 load_dictionary <- function(filename){
   library(tidyverse)
-  read_csv(filename, col_names=TRUE) %>% # create data frame
-    pull(1) # extract vector of first column in data frame
+  x <- read_csv(filename, col_names=TRUE) %>% # Create data frame
+    pull(words) # Extract vector of first column (header = words) in data frame
+  return(x) # Is this the right way to have return at the end?
 }
 
-valid_list <- load_dictionary(valid_file)
-solution_list <- load_dictionary(solution_file)
+valid_list <- load_dictionary(valid_file) # Run function to create a character string of Official Scrabble Words
+solution_list <- load_dictionary(solution_file) # Run function to create a character string of common words
 
-str(valid_list)
-str(solution_list)
+str(valid_list) # Verify structure of new variable
+str(solution_list) # Verify structure of new variable
 
 # done!
 ```
@@ -69,23 +69,43 @@ str(solution_list)
 
 #### Step 2 {.unnumbered}
 
-- Winnow your variable **solution_list** to only include words that are included in **valid_list**. There are multiple ways that you could do this, but the set operation function, `intersection()` is an easy way. Use ***R*** help to look at the documentation for the `intersection()` function to see if you can get that to work. How many words are in your updated **solution_list** vector?
+- Winnowed **solution_list** to only include words that are included in **valid_list** using `intersect()`.
 
 ```{r}
 solution_list <- intersect(solution_list, valid_list)
+
+length(solution_list) %>% 
+  print() # Number of words in updated solution_list = 8336
+
+# done!
 ```
 
 #### Step 3 {.unnumbered}
 
-- Write a custom function called `pick_solution()` that [1] removes all words from **solution_list** that are not 5 letters in length, [2] then randomly chooses a single word from those that remain, and [3] then splits that word into a vector of single-character elements. You should be able to pass your **solution_list** vector as the argument to the function.
+- Wrote a custom function called `pick_solution()` that [1] removes all words from **solution_list** that are not 5 letters in length, [2] then randomly chooses a single word from those that remain, and [3] then splits that word into a vector of single-character elements. 
 
-> **HINT**: For [1], you will want to subset the `solution_list` vector according to some criterion of word length. For [2], you may find the `sample()` function useful (use ***R*** help to look up documentation on that function). For [3], you may want to look at the functions `strsplit()` from {base} ***R*** or `str_split()` from the {stringr} package (part of {tidyverse}). Pay attention to the data structure that those functions return, because you will need to carefully reference one of the elements that is returned in order to wind up with a vector.
+Passed **solution_list** vector as the argument to the function and assigned the result to **solution**.
+
+> **HINT**: For [1], you will want to . For [2], you may find the `sample()` function useful (use ***R*** help to look up documentation on that function). For [3], you may want to look at the functions `strsplit()` from {base} ***R*** or `str_split()` from the {stringr} package (part of {tidyverse}).
 
 As a bonus, you might include a second argument for your `pick_solution()` function called "word_length" that makes your function flexible enough to select a solution word that is something other than 5 characters long.
 
-Once your function works, run it and assign the result to a variable called **solution**.
+```{r}
+# failed strategy
+# string <- solution_list[1:100] # testing function on a subset of solution_list
+# 
+# pick_solution <- function(string){
+  # string %>% str_subset(., pattern = "[a-z]{5}")
 
-```
+
+# x <- solution_list[1:100] # Testing function on a subset of solution_list (replaced word with x)
+
+pick_solution <- function(word){
+  word %>% subset(., nchar(., type = "chars") == 5) %>% # Subset the `solution_list` vector according to some criterion of word length. Outputs strings containing exactly 5 characters
+    sample(., 1) %>% # Randomly choose a single string (word) from those with exactly 5 characters
+    str_split(., pattern = "") # Split the randomly selected string (word) into a vector of single-character elements. An empty pattern, "", is equivalent to boundary("character")
+}
+
 solution <- pick_solution(solution_list)
 ```
 
