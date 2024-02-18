@@ -2,6 +2,8 @@
 title: "wordle_KB"
 output: html_document
 date: "2024-02-12"
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Creating a Wordle Game
@@ -11,10 +13,12 @@ The rules of Wordle are simple: A player has SIX tries to guess a 5-letter word 
 - Created a custom function called load_dictionary() that takes a single argument, “filename”, that can be used to read in either of the two data files your downloaded.
 
 - Used that function to create two variables, solution_list and valid_list, that, respectively contain vectors of possible solution words and valid words to guess.
+
 ```{r}
 # Load files. These files were pulled from our own repository but originally downloaded from https://github.com/difiore/ada-2024-datasets
 valid_file <- "https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt"
 solution_file <- "https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt"
+
 
 # Creating custom function "load_library"
 load_library <- function(filename){
@@ -31,7 +35,6 @@ str(solution_list)
 ```
 
 ## Step 2 
-
 - Winnowed the variable solution_list to only include words that are included in valid_list. 
 - Used R help to look at the documentation for the intersection() function to see if it would work. 
 - `How many words are in your updated solution_list vector?`
@@ -93,5 +96,3 @@ play_wordle(solution, valid_list, num_guesses)
 print("hi")
 
 ```
-
-
