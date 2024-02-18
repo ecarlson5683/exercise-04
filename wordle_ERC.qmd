@@ -128,7 +128,7 @@ The `play_wordle()` function:
 
 
 ```{r}
-# Working on Step 4.4
+# Working on Step 4.5
 
 play_wordle <- function(solution, valid_list, num_guesses=6){
   
@@ -157,29 +157,35 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
     guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
     guess <- toupper(guess)
   } else { 
-    cat("Continue.") # Change to evaluate_guess()
+    evaluate_guess(guess, solution)
     break
   }
   }
+  
+  # Update the list of letters guessed
+  guess_letters <- str_split(guess, "")[[1]]
+  letters_left <- setdiff(LETTERS, guess_letters)
+  letters_left <- cat("Letters left:", letters_left)
+  
+  
   
 }
 
 
 # Helper function to evaluate valid guesses
-guess_test <- "JONES" # replacing `guess` to test evaluate_guess() 
+# guess_test <- "NOSES" # replacing `guess` to test evaluate_guess() 
 
-evaluate_guess <- function(guess_test, solution){
-  guess_letters <- str_split(guess_test, "")[[1]]
-  if(guess_letters %in% solution) {
-    print("*")
-  } else {
-    print("-")
+evaluate_guess <- function(guess, solution){
+  guess_letters <- str_split(guess, "")[[1]]
+  
+  for (i in 1:length(guess_letters)) {
+  output <- case_when(guess_letters[] == solution[] ~ "*",
+                      guess_letters[] %in% solution[] ~ "+",
+                      guess_letters[] != solution[] ~ "-"
+                      )
   }
+  print(output)
 }
-  
-evaluate_guess(guess_test, solution)
-  
-  # `*` for *in the word and in the correct position*, `+` for *in the word but in the wrong position*, and `-` for *not in the word*.
 
 # Need to make a loop to count guesses 
   
