@@ -446,7 +446,7 @@ characters long.</p>
 
 solution &lt;- pick_solution(True_solution_list)
 print(solution)</code></pre>
-<pre><code>## [1] &quot;A&quot; &quot;R&quot; &quot;M&quot; &quot;O&quot; &quot;R&quot;</code></pre>
+<pre><code>## [1] &quot;N&quot; &quot;I&quot; &quot;G&quot; &quot;E&quot; &quot;R&quot;</code></pre>
 </div>
 <div id="step-4" class="section level2">
 <h2>Step 4</h2>
@@ -458,35 +458,38 @@ contents of your valid_list variable), and [3] a value for “number of
 guesses”, which you should set to the original Wordle game default of
 6.</li>
 </ul>
-<pre class="r"><code>play_wordle &lt;- function(solution, valid_list, num_guesses=6){
-#solution: answer to the wordle
-#valid_list: list of all possible words in the valid list 
-#num_guesses: number of guesses each player has
-  
-# Tell the player the rules of the game  
-  n_length &lt;- length(solution)
+<pre class="r"><code>play_wordle_KB &lt;- function(solution, valid_list, num_guesses=6){
+  # Tell the player the rules of the game  
+  word_length &lt;- length(solution)
   num_guesses &lt;- 6
-  print(paste(&quot;Hi! You have&quot;, num_guesses, &quot;chances to guess the&quot;, n_length, &quot;lettered word&quot;)) # Numbers of guesses left
-
-  # Display what letters the player has not yet guesses
+  print(paste(&quot;Hi! You have&quot;, num_guesses, &quot;chances to guess the&quot;, word_length, &quot;lettered word&quot;)) # Numbers of guesses left
   
+  # Display what letters the player has not yet guessed 
   lettersRemaining &lt;- toupper(LETTERS) #toupper() capitilizes all letters; tolower() would make all letters lower case
   print(paste(&quot;You have the following letters remaining:&quot;, paste(lettersRemaining, collapse=&quot; &quot;)))
-  
+
 # Prompt a player for a guess
   num_guesses &lt;- 0
   num_guesses &lt;- num_guesses + 1
-  guess &lt;- readline(prompt = paste(&quot;Enter guess number&quot;, num_guesses, &quot;then press &lt;enter&gt;: &quot;)) #Readline prompts user to enter a guess
+  guess &lt;- readline(paste(&quot;Enter guess number&quot;, num_guesses, &quot;then press &lt;enter&gt;:&quot;)) #Readline prompts user to enter a guess
   guess &lt;- toupper(guess)
   guess &lt;- str_split(guess, &quot;&quot;)
+  print(guess)
+  
 }
 
-play_wordle(solution, valid_list, num_guesses)</code></pre>
+#    while(nchar(guess) != word_length){
+#      guess &lt;- readline(paste(&quot;Invalid entry! Guess must have&quot;, word_length, &quot; characters&quot;))
+#    }
+  
+ # guess_vector &lt;- str_split(guess, &quot;&quot;)
+  
+play_wordle_KB(solution, valid_list, num_guesses)</code></pre>
 <pre><code>## [1] &quot;Hi! You have 6 chances to guess the 5 lettered word&quot;
 ## [1] &quot;You have the following letters remaining: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z&quot;
-## Enter guess number 1 then press &lt;enter&gt;:</code></pre>
-<pre class="r"><code>print(&quot;hi&quot;)</code></pre>
-<pre><code>## [1] &quot;hi&quot;</code></pre>
+## Enter guess number 1 then press &lt;enter&gt;:
+## [[1]]
+## character(0)</code></pre>
 </div>
 </div>
 
