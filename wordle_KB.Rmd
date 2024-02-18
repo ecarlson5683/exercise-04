@@ -80,13 +80,13 @@ play_wordle_KB <- function(solution, valid_list, num_guesses=6){
   print(paste("Hi! You have", num_guesses, "chances to guess the", word_length, "lettered word")) # Numbers of guesses left
   
   # Display what letters the player has not yet guessed 
-  lettersRemaining <- toupper(LETTERS) #toupper() capitilizes all letters; tolower() would make all letters lower case
+  lettersRemaining <- toupper(LETTERS) #toupper() capitalizes all letters; tolower() would make all letters lower case
   print(paste("You have the following letters remaining:", paste(lettersRemaining, collapse=" ")))
 
 # Prompt a player for a guess
   num_guesses <- 0
   num_guesses <- num_guesses + 1
-  guess <- readline(paste("Enter guess number", num_guesses, "then press <enter>:")) #Readline prompts user to enter a guess
+  guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: ")) #Readline prompts user to enter a guess
   guess <- toupper(guess)
   guess <- str_split(guess, "")
   print(guess)
