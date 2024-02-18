@@ -116,32 +116,33 @@ The `play_wordle()` function:
 
 3. Prompts the player for a guess, e.g., "Enter guess number ...", read in their guess, and check that their guess is valid (i.e., that it contains the correct number of letters and is a word included in the "valid" word list).
 
-4. Compares the guess to the solution word and generate the necessary feedback, e.g., `*` for *in the word and in the correct position*, `+` for *in the word but in the wrong position*, and `-` for *not in the word*. For this step, try writing a separate "helper" function, `evaluate_guess()`, called from within `play_wordle()`. This function should take, as arguments, the player's guess and the value of the **solution** variable. This is probably the trickiest part of the problem to program, and there are lots of approaches you might take to evaluating guesses. After you work on this for a while, I can share one solution.
+4. Compares the guess to the solution word and generates the necessary feedback, e.g., `*` for *in the word and in the correct position*, `+` for *in the word but in the wrong position*, and `-` for *not in the word*. Uses a separate "helper" function, `evaluate_guess()`, called from within `play_wordle()`. This function has two arguments: the player's guess and the value of the **solution** variable.
 
-5. Update the list of letters not yet guessed.
+5. Updates the list of letters not yet guessed.
 
-> **HINT**: Again, consider using set operations to update the list of letters not yet guessed. `setdiff()` is a function that returns the difference between two vectors.
-
-6. Check if the puzzle was solved. If so, the function should indicate that the player WON the game and print out their guess and feedback history. If not, the function should prompt the player for another guess, unless they have already hit the maximum number of guesses allowed.
+6. Checks if the puzzle was solved. If so, the player is told they WON the game and receive a print out of their guess and feedback history. If not, the player is prompted for another guess, unless they have already hit the maximum number of guesses allowed.
 
 7. If all guesses are exhausted, the function should indicate that the player LOST the game and, again, print out their guess and feedback history.
 
 
 ```{r}
-# Working on Step 4.5
+# Working on Step 4.6
 
 play_wordle <- function(solution, valid_list, num_guesses=6){
   
+  for (i in 1:num_guesses) { # Create a loop for guessing (replaced `num_guesses` with `i` to count up), Step 4.6
+  
   # Tell game rules
   n_length <- length(solution) # Return the length of the vector **solution** (5 single-letter strings)
-  rules <- cat("You have", num_guesses, "chances to guess a", n_length, "letter word. ") # Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`
+  cat("You have", num_guesses, "chances to guess a", n_length, "letter word. ") # Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`
   
-  # Display letters left
-  letters_left <- cat("Letters left:", LETTERS) # Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.
-  # ToDo: get to new line in output, subtract guessed letters
+  # Display letters left (updated with guessed letters, Step 4.5)
+  letters_left <- if(i == 1){LETTERS
+  } else {letters_left}
+  cat("Letters left:", letters_left) # Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.
   
   # Prompt player for a guess
-  guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: ")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses
+  guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: ")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses
   
   # Convert guess entry to uppercase
   guess <- toupper(guess)
@@ -149,29 +150,39 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   # Check validity of guess
   while (is.character(guess)) {
   if(nchar(guess, type = "chars") != 5) { # Check for non-5-letter words and reprompt guess
-    cat("Invalid entry: Not a 5-letter word. Please try again. Letters left:", LETTERS) # ToDo: subtract guessed letters
-    guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+    cat("Invalid entry: Not a 5-letter word. Please try again. Letters left:", letters_left) 
+    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: "))
     guess <- toupper(guess)
   } else if(!(guess %in% valid_list)) { # Check for non-valid words and reprompt guess
-    cat("Invalid entry: Not a valid word. Please try again. Letters left:", LETTERS) # ToDo: subtract guessed letters
-    guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+    cat("Invalid entry: Not a valid word. Please try again. Letters left:", letters_left)
+    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: "))
     guess <- toupper(guess)
   } else { 
     evaluate_guess(guess, solution)
-    break
+    break # End loop so run evaluate_guess() is run only once
   }
   }
   
   # Update the list of letters guessed
   guess_letters <- str_split(guess, "")[[1]]
-  letters_left <- setdiff(LETTERS, guess_letters)
-  letters_left <- cat("Letters left:", letters_left)
+  letters_left <- setdiff(letters_left, guess_letters) # Overwrite letters_left to remove letters of guess
+
+  # Check if puzzle is solved
+  if(identical(guess_letters, solution)) {
+    cat("Congratulations Wordler!") # ToDo: and print guess history
+    break # end loop
+  } else if (!identical(guess_letters, solution) & i < num_guesses) { 
+    # Loop to beginning, now with updated letter list for remaining guesses
+  } else {
+    cat("No more guesses. Better luck next time!") # Loop ends, notify player of loss
+  }
   
-  
+  }
   
 }
+```
 
-
+```{r}
 # Helper function to evaluate valid guesses
 # guess_test <- "NOSES" # replacing `guess` to test evaluate_guess() 
 
@@ -186,10 +197,14 @@ evaluate_guess <- function(guess, solution){
   }
   print(output)
 }
+```
 
-# Need to make a loop to count guesses 
-  
+```{r}
+# Play wordle
 play_wordle(solution, valid_list)
+```
+
+
 ```
  
  
