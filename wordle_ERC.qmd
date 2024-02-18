@@ -107,7 +107,7 @@ pick_solution <- function(word){
     str_split(., pattern = "") # Split the randomly selected string (word) into a vector of single-character elements. An empty pattern, "", is equivalent to boundary("character")
 }
 
-solution <- pick_solution(solution_list) # Run function to create a vector of single-character elements, the letters of the solution word
+solution <- pick_solution(solution_list)[[1]] # Run function to create a vector of single-letter strings, the letters of the solution word
 
 # done!
 ```
@@ -136,42 +136,94 @@ The `play_wordle()` function:
 
 
 ```{r}
-# Stuck on Step 4.3
+# Working on Step 4.4
 
 play_wordle <- function(solution, valid_list, num_guesses=6){
-  n_length <- lengths(solution) # Return the length of every element in the list **solution**
-  rules <- c("You", "have", num_guesses, "chances", "to", "guess", "a", "word", "of", "length", n_length) %>% # Create a vector of strings for rules sentence
-    paste(., collapse = " ") %>% # Convert the vector of strings into a single string
-    print() 
   
-  alphabet <- LETTERS %>% toupper() %>% paste(., collapse = " ") # Return single string of alphabet
-  letters_left <- paste0("Letters left: ", alphabet) %>% 
-    print()
-
-  guess <- paste0("Enter guess number ", num, " then press <enter>: ") # Error: should be guesses taken, not num_guesses; should convert guess to uppercase
-  guess <- readline(guess) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data
+  # Tell game rules
+  n_length <- length(solution) # Return the length of the vector **solution** (5 single-letter strings)
+  rules <- cat("You have", num_guesses, "chances to guess a", n_length, "letter word. ") # Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`
   
-  case_when(
-    nchar(guess, type = "chars") != 5 ~ readline("Error: Not a 5-letter word. Re-enter guess then press <enter>: "), # Error: should loop back to guess
-    !(guess %in% valid_list) ~ readline("Error: Not a valid word. Re-enter guess then press <enter>: "), # Error: should indicate guess number
-    guess %in% valid_list & nchar(guess, type = "chars") == 5 ~ letters_left # Error: should go to evaluate_guess()
-    ) 
+  # Display letters left
+  letters_left <- cat("Letters left:", LETTERS) # Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.
+  # ToDo: get to new line in output, modify to subtract guessed letters
   
-  # evaluate_guess()
+  # Prompt player for a guess
+  guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: ")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses; should convert guess to uppercase
+  
+  # Convert guess entry is uppercase
+  guess <- toupper(guess)
+  
+  # Check validity of guess
+  while (is.character(guess)) {
+  if(nchar(guess, type = "chars") != 5) {
+    print("Invalid entry: Not a 5-letter word. Please try again.")
+    guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  } else if(!(guess %in% valid_list)) {
+    print("Invalid entry: Not a valid word. Please try again.")
+    guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  } else { 
+    print("Continue.") # change to evaluate_guess()
+    break
+  }
+  }
+  
 }
-
-play_wordle(solution, valid_list)
   
+play_wordle(solution, valid_list)
+
+
 # Now need to employ the helper function
 evaluate_guess(guess, solution){
   # `*` for *in the word and in the correct position*, `+` for *in the word but in the wrong position*, and `-` for *not in the word*.
   case_when()
-  
-}
 
-# Need to make a loop to count guesses
+# Need to make a loop to count guesses 
+``` 
+ 
+ 
+ 
+## Failed strategies 
 
+```{r}
+ # failed strategy 1 for valid guess check
+  # case_when(
+  #   guess %in% valid_list & nchar(guess, type = "chars") == 5 ~ letters_left, # ToDo: should go to evaluate_guess()
+  #   nchar(guess, type = "chars") != 5 ~ readline("Error: Not a 5-letter word. Re-enter guess then press <enter>: "), # ToDo: should go back to update `guess `
+  #   !(guess %in% valid_list) ~ readline("Error: Not a valid word. Re-enter guess then press <enter>: "), # ToDo: should go back to update `guess `
+  #   .default = NULL
+  #   ) 
+ 
+ 
+ # failed strategy 2 for valid guess check
+  # while (nchar(guess, type = "chars") != 5) {
+  #   cat("Error: Not a 5-letter word.")
+  #   guess <- readline(guess_prompt) # overwriting guess
+  # }
+  # 
+  # while (!(guess %in% valid_list) {
+  #   cat("Error: Not a valid word.")
+  #   guess <- readline(guess_prompt) # overwriting guess
+  # }
+  # 
+  # while (guess %in% valid_list & nchar(guess, type = "chars") == 5) {
+  #   # evaluate_guess()
+  # }
 
+ # failed strategy 3 for valid guess check (only need to check for non-valid entries, then continue)
+  # while (is.character(guess)) {
+  # if(guess %in% valid_list & nchar(guess, type = "chars") == 5){
+  #   print("Continue")
+  #   # evaluate_guess() # to write
+  #   guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  # } else if(nchar(guess, type = "chars") != 5) {
+  #   print("Invalid entry: Not a 5-letter word. Please try again.")
+  #   guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  # } else { 
+  #   print("You exited the game.")
+  #   break
+  # }
+  # }
 ```
 
 
