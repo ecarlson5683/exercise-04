@@ -446,7 +446,7 @@ characters long.</p>
 
 solution &lt;- pick_solution(True_solution_list)
 print(solution)</code></pre>
-<pre><code>## [1] &quot;N&quot; &quot;I&quot; &quot;G&quot; &quot;E&quot; &quot;R&quot;</code></pre>
+<pre><code>## [1] &quot;F&quot; &quot;A&quot; &quot;T&quot; &quot;A&quot; &quot;L&quot;</code></pre>
 </div>
 <div id="step-4" class="section level2">
 <h2>Step 4</h2>
@@ -465,13 +465,13 @@ guesses”, which you should set to the original Wordle game default of
   print(paste(&quot;Hi! You have&quot;, num_guesses, &quot;chances to guess the&quot;, word_length, &quot;lettered word&quot;)) # Numbers of guesses left
   
   # Display what letters the player has not yet guessed 
-  lettersRemaining &lt;- toupper(LETTERS) #toupper() capitilizes all letters; tolower() would make all letters lower case
+  lettersRemaining &lt;- toupper(LETTERS) #toupper() capitalizes all letters; tolower() would make all letters lower case
   print(paste(&quot;You have the following letters remaining:&quot;, paste(lettersRemaining, collapse=&quot; &quot;)))
 
 # Prompt a player for a guess
   num_guesses &lt;- 0
   num_guesses &lt;- num_guesses + 1
-  guess &lt;- readline(paste(&quot;Enter guess number&quot;, num_guesses, &quot;then press &lt;enter&gt;:&quot;)) #Readline prompts user to enter a guess
+  guess &lt;- readline(prompt = paste(&quot;Enter guess number&quot;, num_guesses, &quot;then press &lt;enter&gt;: &quot;)) #Readline prompts user to enter a guess
   guess &lt;- toupper(guess)
   guess &lt;- str_split(guess, &quot;&quot;)
   print(guess)
@@ -487,7 +487,7 @@ guesses”, which you should set to the original Wordle game default of
 play_wordle_KB(solution, valid_list, num_guesses)</code></pre>
 <pre><code>## [1] &quot;Hi! You have 6 chances to guess the 5 lettered word&quot;
 ## [1] &quot;You have the following letters remaining: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z&quot;
-## Enter guess number 1 then press &lt;enter&gt;:
+## Enter guess number 1 then press &lt;enter&gt;: 
 ## [[1]]
 ## character(0)</code></pre>
 </div>
