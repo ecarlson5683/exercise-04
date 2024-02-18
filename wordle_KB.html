@@ -370,18 +370,22 @@ that need not be the case.</p>
 <div id="step-1" class="section level2">
 <h2>Step 1</h2>
 <ul>
+
 <li><p>Created a custom function called load_dictionary() that takes a
 single argument, “filename”, that can be used to read in either of the
 two data files your downloaded.</p></li>
 <li><p>Used that function to create two variables, solution_list and
 valid_list, that, respectively contain vectors of possible solution
 words and valid words to guess.</p></li>
+
 </ul>
 <pre class="r"><code># Load files. These files were pulled from our own repository but originally downloaded from https://github.com/difiore/ada-2024-datasets
 valid_file &lt;- &quot;https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt&quot;
 solution_file &lt;- &quot;https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt&quot;
 
+
 # Creating custom function &quot;load_library&quot;
+
 load_library &lt;- function(filename){
   library(tidyverse)
   read.table(filename, header = TRUE) %&gt;% # create a tibble (data frame)
@@ -409,15 +413,18 @@ str(valid_list)</code></pre>
 <div id="step-2" class="section level2">
 <h2>Step 2</h2>
 <ul>
+
 <li>Winnowed the variable solution_list to only include words that are
 included in valid_list.</li>
 <li>Used R help to look at the documentation for the intersection()
 function to see if it would work.</li>
+
 <li><code>How many words are in your updated solution_list vector?</code></li>
 </ul>
 <pre class="r"><code>True_solution_list &lt;- intersect(valid_list, solution_list)
 str(True_solution_list)</code></pre>
 <pre><code>##  chr [1:8336] &quot;AA&quot; &quot;AB&quot; &quot;ABANDONED&quot; &quot;ABILITIES&quot; &quot;ABILITY&quot; &quot;ABLE&quot; ...</code></pre>
+
 <pre class="r"><code>no_words &lt;- length(True_solution_list)
 print(paste(&quot;There are&quot;, no_words, &quot;words&quot;))</code></pre>
 <pre><code>## [1] &quot;There are 8336 words&quot;</code></pre>
@@ -484,6 +491,7 @@ play_wordle(solution, valid_list, num_guesses)</code></pre>
 <pre><code>## [1] &quot;Hi! You have 6 chances to guess the 5 lettered word&quot;
 ## [1] &quot;You have the following letters remaining: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z&quot;
 ## Enter guess number 1 then press &lt;enter&gt;:</code></pre>
+
 </div>
 </div>
 

@@ -1,0 +1,244 @@
+---
+title: "wordle"
+author: "Erika Carlson"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Creating a Wordle Game {.unnumbered}
+
+## **Wordle** Puzzle Challenge {.unnumbered}
+
+The rules of **Wordle** are simple: A player has SIX tries to guess a 5-letter word that has been selected at random from a list of possible words. Guesses need to be valid 5-letter words. After each guess, a player receives feedback about how close their guess was to the word, which provides information they can use to try to solve the puzzle. This feedback lets you know whether each letter your guess is either [1] *in the solution word and in the correct spot*, [2] *in the solution word but in the wrong position*, or [3] *not in the solution word*. In app/browser versions of **Wordle**, this feedback is provided visually using colors, but that need not be the case.
+
+The assignment and steps below were inspired by [this fun blog post](https://statisticaloddsandends.wordpress.com/2022/01/18/playing-wordle-in-r/)
+
+## Preliminaries
+
+Two data files were downloaded from https://github.com/difiore/ada-2024-datasets to repo:
+
+collins-scrabble-words-2019.txt
+google-10000-english-usa-no-swears.txt
+
+The first (279,497 lines long) contains a list of “Official Scrabble Words” in the English language based on the ***Collins English Dictionary*** published by HarperCollins. The first line in the file is the header “words”.
+
+The second (9885 lines long) contains a list of ~10,000 of the most common words in the English language, based on data compiled by Google, and omitting common swear words. The first line in the file is the header “words”.
+
+```{r}
+valid_file <- "https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt"
+
+solution_file <- "https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt"
+```
+
+
+#### Introduction {.unnumbered}
+
+Step 0: Break down the problem into discrete pieces... What do we need to do to **set** up a Wordle game? What **steps** does game play need to follow? What has to be **evaluated** at each step? How does the game **end**?
+
+**Things to do**
+
+* Choose a mystery "solution" word that players will try to guess. We will use the list of the most common words in the English language to do this as a possible source of solution words for the puzzle.
+* Establish a dictionary of "valid" words that players can guess. We will use the list of Official Scrabble Words.
+
+> **NOTE:** The list of possible "solution" words used in the original Wordle puzzle consists of ~2100 5-letter words, while the list of "valid" words that can be used as guesses totals ~13,000. How many 5-letter words are in each of the two data files you have downloaded?
+
+#### Step 1 {.unnumbered}
+
+- Created function `load_dictionary()` with single argument, "filename", to read in csv files.
+
+- Used `load_dictionary()` to create two variables, **solution_list** and **valid_list**, that contain *vectors* of possible solution words and valid words to guess.
+
+```{r}
+load_dictionary <- function(filename){
+  library(tidyverse)
+  x <- read_csv(filename, col_names=TRUE) %>% # Create data frame
+    pull(words) # Extract vector of first column (header = words) in data frame
+  return(x) # Explicitly return output of pipe
+}
+
+valid_list <- load_dictionary(valid_file) # Run function to create a character string of Official Scrabble Words
+solution_list <- load_dictionary(solution_file) # Run function to create a character string of common words
+
+str(valid_list) # Verify structure of new variable
+str(solution_list) # Verify structure of new variable
+
+# done!
+```
+
+
+#### Step 2 {.unnumbered}
+
+- Winnowed **solution_list** to only include words that are included in **valid_list** using `intersect()`.
+
+```{r}
+solution_list <- intersect(solution_list, valid_list)
+
+length(solution_list) %>% 
+  print() # Number of words in updated solution_list = 8336
+
+# done!
+```
+
+#### Step 3 {.unnumbered}
+
+- Wrote a custom function called `pick_solution()` that [1] removes all words from **solution_list** that are not 5 letters in length, [2] then randomly chooses a single word from those that remain, and [3] then splits that word into a vector of single-character elements. 
+
+Passed **solution_list** vector as the argument to the function and assigned the result to **solution**.
+
+> **HINT**: For [1], you will want to . For [2], you may find the `sample()` function useful (use ***R*** help to look up documentation on that function). For [3], you may want to look at the functions `strsplit()` from {base} ***R*** or `str_split()` from the {stringr} package (part of {tidyverse}).
+
+As a bonus, you might include a second argument for your `pick_solution()` function called "word_length" that makes your function flexible enough to select a solution word that is something other than 5 characters long.
+
+```{r}
+# failed strategy
+# string <- solution_list[1:100] # testing function on a subset of solution_list
+# 
+# pick_solution <- function(string){
+  # string %>% str_subset(., pattern = "[a-z]{5}")
+# }
+
+
+# x <- solution_list[1:100] # Testing function on a subset of solution_list (replaced word with x)
+
+pick_solution <- function(word){
+  word %>% subset(., nchar(., type = "chars") == 5) %>% # Subset the `solution_list` vector according to some criterion of word length. Outputs strings containing exactly 5 characters
+    sample(., 1) %>% # Randomly choose a single string (word) from those with exactly 5 characters
+    str_split(., pattern = "") # Split the randomly selected string (word) into a vector of single-character elements. An empty pattern, "", is equivalent to boundary("character")
+}
+
+solution <- pick_solution(solution_list)[[1]] # Run function to create a vector of single-letter strings, the letters of the solution word
+
+# done!
+```
+
+#### Step 4 {.unnumbered}
+
+Created two more functions: `play_wordle()` with three arguments: [1] the answer to the puzzle (the value of the **solution** variable), [2] a list of valid guesses (the contents of the **valid_list** variable), and [3] a value for "number of guesses", which defaults to 6 in the original **Wordle** game.
+
+The `play_wordle()` function:
+
+1. Tells the player the rules of the game, e.g., "You have ... chances to guess a word of length ..."
+
+2. Displays what letters the player has not yet guessed (initially all 26 in alphabet), e.g., "Letters left: ..."
+
+3. Prompts the player for a guess, e.g., "Enter guess number ...", read in their guess, and check that their guess is valid (i.e., that it contains the correct number of letters and is a word included in the "valid" word list).
+
+4. Compares the guess to the solution word and generate the necessary feedback, e.g., `*` for *in the word and in the correct position*, `+` for *in the word but in the wrong position*, and `-` for *not in the word*. For this step, try writing a separate "helper" function, `evaluate_guess()`, called from within `play_wordle()`. This function should take, as arguments, the player's guess and the value of the **solution** variable. This is probably the trickiest part of the problem to program, and there are lots of approaches you might take to evaluating guesses. After you work on this for a while, I can share one solution.
+
+5. Update the list of letters not yet guessed.
+
+> **HINT**: Again, consider using set operations to update the list of letters not yet guessed. `setdiff()` is a function that returns the difference between two vectors.
+
+6. Check if the puzzle was solved. If so, the function should indicate that the player WON the game and print out their guess and feedback history. If not, the function should prompt the player for another guess, unless they have already hit the maximum number of guesses allowed.
+
+7. If all guesses are exhausted, the function should indicate that the player LOST the game and, again, print out their guess and feedback history.
+
+
+```{r}
+# Working on Step 4.4
+
+play_wordle <- function(solution, valid_list, num_guesses=6){
+  
+  # Tell game rules
+  n_length <- length(solution) # Return the length of the vector **solution** (5 single-letter strings)
+  rules <- cat("You have", num_guesses, "chances to guess a", n_length, "letter word. ") # Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`
+  
+  # Display letters left
+  letters_left <- cat("Letters left:", LETTERS) # Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.
+  # ToDo: get to new line in output, modify to subtract guessed letters
+  
+  # Prompt player for a guess
+  guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: ")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses; should convert guess to uppercase
+  
+  # Convert guess entry is uppercase
+  guess <- toupper(guess)
+  
+  # Check validity of guess
+  while (is.character(guess)) {
+  if(nchar(guess, type = "chars") != 5) {
+    print("Invalid entry: Not a 5-letter word. Please try again.")
+    guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  } else if(!(guess %in% valid_list)) {
+    print("Invalid entry: Not a valid word. Please try again.")
+    guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  } else { 
+    print("Continue.") # change to evaluate_guess()
+    break
+  }
+  }
+  
+}
+  
+play_wordle(solution, valid_list)
+
+
+# Now need to employ the helper function
+evaluate_guess(guess, solution){
+  # `*` for *in the word and in the correct position*, `+` for *in the word but in the wrong position*, and `-` for *not in the word*.
+  case_when()
+
+# Need to make a loop to count guesses 
+``` 
+ 
+ 
+ 
+## Failed strategies 
+
+```{r}
+ # failed strategy 1 for valid guess check
+  # case_when(
+  #   guess %in% valid_list & nchar(guess, type = "chars") == 5 ~ letters_left, # ToDo: should go to evaluate_guess()
+  #   nchar(guess, type = "chars") != 5 ~ readline("Error: Not a 5-letter word. Re-enter guess then press <enter>: "), # ToDo: should go back to update `guess `
+  #   !(guess %in% valid_list) ~ readline("Error: Not a valid word. Re-enter guess then press <enter>: "), # ToDo: should go back to update `guess `
+  #   .default = NULL
+  #   ) 
+ 
+ 
+ # failed strategy 2 for valid guess check
+  # while (nchar(guess, type = "chars") != 5) {
+  #   cat("Error: Not a 5-letter word.")
+  #   guess <- readline(guess_prompt) # overwriting guess
+  # }
+  # 
+  # while (!(guess %in% valid_list) {
+  #   cat("Error: Not a valid word.")
+  #   guess <- readline(guess_prompt) # overwriting guess
+  # }
+  # 
+  # while (guess %in% valid_list & nchar(guess, type = "chars") == 5) {
+  #   # evaluate_guess()
+  # }
+
+ # failed strategy 3 for valid guess check (only need to check for non-valid entries, then continue)
+  # while (is.character(guess)) {
+  # if(guess %in% valid_list & nchar(guess, type = "chars") == 5){
+  #   print("Continue")
+  #   # evaluate_guess() # to write
+  #   guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  # } else if(nchar(guess, type = "chars") != 5) {
+  #   print("Invalid entry: Not a 5-letter word. Please try again.")
+  #   guess <- readline(prompt = paste("Enter guess number", num_guesses, "then press <enter>: "))
+  # } else { 
+  #   print("You exited the game.")
+  #   break
+  # }
+  # }
+```
+
+
+#### Optional Next Steps? {.unnumbered}
+
+- Try modifying your code to mimic the "hard mode" in **Wordle**, where information about the letters in the solution and their positions revealed in prior guesses has to be used in subsequent guesses.
+
+- Try spicing up the feedback given using colors or alternative formatting. One way to do this would be to use the {huxtable} package, which is a package for creating text tables that can be styled for display in the ***R*** console and can also output to HTML, PDF, and a variety of other formats.
+
+- Have ***R*** keep track of the date and not let you play more than one **Wordle** game per day.
+
+- Have ***R*** keep track of your performance across multiple games of **Wordle**.
+
+- Allow ***R*** to post your **Wordle** results to a social media platform of your choosing. For this, check out, e.g., the {Rfacebook} or {rtweet} packages.
+
+- Convert your code to an interactive {shiny} app to have it run in a web brower. Later modules will introduce you to programming with {shiny}.
+
+
