@@ -370,20 +370,18 @@ that need not be the case.</p>
 <div id="step-1" class="section level2">
 <h2>Step 1</h2>
 <ul>
-<li><p>Create your own custom function called load_dictionary() that
-takes a single argument, “filename”, that can be used to read in either
-of the two data files your downloaded.</p></li>
-<li><p>Once you have created your function, use that function to create
-two variables, solution_list and valid_list, that, respectively contain
-vectors of possible solution words and valid words to guess. That is,
-you should be able to run the following to create these two
-vectors:</p></li>
+<li><p>Created a custom function called load_dictionary() that takes a
+single argument, “filename”, that can be used to read in either of the
+two data files your downloaded.</p></li>
+<li><p>Used that function to create two variables, solution_list and
+valid_list, that, respectively contain vectors of possible solution
+words and valid words to guess.</p></li>
 </ul>
 <pre class="r"><code># Load files. These files were pulled from our own repository but originally downloaded from https://github.com/difiore/ada-2024-datasets
 valid_file &lt;- &quot;https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt&quot;
 solution_file &lt;- &quot;https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt&quot;
 
-# Creating custom function &quot;load_libaray&quot;
+# Creating custom function &quot;load_library&quot;
 load_library &lt;- function(filename){
   library(tidyverse)
   read.table(filename, header = TRUE) %&gt;% # create a tibble (data frame)
@@ -411,50 +409,81 @@ str(valid_list)</code></pre>
 <div id="step-2" class="section level2">
 <h2>Step 2</h2>
 <ul>
-<li>Winnow your variable solution_list to only include words that are
-included in valid_list. There are multiple ways that you could do this,
-but the set operation function, intersection() is an easy way.</li>
-<li>Use R help to look at the documentation for the inersection()
-function to see if you can get that to work.</li>
+<li>Winnowed the variable solution_list to only include words that are
+included in valid_list.</li>
+<li>Used R help to look at the documentation for the intersection()
+function to see if it would work.</li>
 <li><code>How many words are in your updated solution_list vector?</code></li>
 </ul>
 <pre class="r"><code>True_solution_list &lt;- intersect(valid_list, solution_list)
 str(True_solution_list)</code></pre>
 <pre><code>##  chr [1:8336] &quot;AA&quot; &quot;AB&quot; &quot;ABANDONED&quot; &quot;ABILITIES&quot; &quot;ABILITY&quot; &quot;ABLE&quot; ...</code></pre>
-<p>There are 8,336 words.</p>
+<pre class="r"><code>no_words &lt;- length(True_solution_list)
+print(paste(&quot;There are&quot;, no_words, &quot;words&quot;))</code></pre>
+<pre><code>## [1] &quot;There are 8336 words&quot;</code></pre>
 </div>
 <div id="step-3" class="section level2">
 <h2>Step 3</h2>
-<p>Write a custom function called pick_solution() that [1] removes all
+<ul>
+<li>Wrote a custom function called pick_solution() that [1] removes all
 words from solution_list that are not 5 letters in length, [2] then
 randomly chooses a single word from those that remain, and [3] then
-splits that word into a vector of single-character elements. You should
-be able to pass your solution_list vector as the argument to the
-function.</p>
-<p>As a bonus, you might include a second argument for your
+splits that word into a vector of single-character elements.
+solution_list vector can pass as the argument to the function.</li>
+<li>Once function worked, assigned the result to a variable called
+solution.</li>
+</ul>
+<p>*As a bonus, you might include a second argument for your
 pick_solution() function called “word_length” that makes your function
 flexible enough to select a solution word that is something other than 5
 characters long.</p>
-<p>Once your function works, run it and assign the result to a variable
-called solution.</p>
-<p>solution &lt;- pick_solution(solution_list)</p>
 <pre class="r"><code>pick_solution &lt;- function(word){
-  True_solution_list &lt;- subset(True_solution_list, nchar(True_solution_list) == 5) # Keep only 5 letter long words all words
-  str_split_1(sample(True_solution_list, 1), &quot;&quot;) # randomly select a 5-letter word and make it 5 distinct characters
+  subset(word, nchar(word) == 5) |&gt; # Keep only 5 letter long words all words
+    sample(1) |&gt;
+    str_split_1( &quot;&quot;) # randomly select a 5-letter word and make it 5 distinct characters
 }
 
-solution &lt;- pick_solution(word)
+solution &lt;- pick_solution(True_solution_list)
 print(solution)</code></pre>
-<pre><code>## [1] &quot;S&quot; &quot;H&quot; &quot;E&quot; &quot;E&quot; &quot;T&quot;</code></pre>
+<pre><code>## [1] &quot;W&quot; &quot;A&quot; &quot;S&quot; &quot;T&quot; &quot;E&quot;</code></pre>
 </div>
 <div id="step-4" class="section level2">
 <h2>Step 4</h2>
-<p>Now, to tackle the bulk of the problem, create two more functions.
-The first should be called play_wordle() and it should take three
-arguments: [1] the answer to the puzzle (the value of your solution
-variable), [2] a list of valid guesses (the contents of your valid_list
-variable), and [3] a value for “number of guesses”, which you should set
-to the original Wordle game default of 6.</p>
+<ul>
+<li>Create two more functions. The first should be called play_wordle()
+and it should take three arguments: [1] the answer to the puzzle (the
+value of your solution variable), [2] a list of valid guesses (the
+contents of your valid_list variable), and [3] a value for “number of
+guesses”, which you should set to the original Wordle game default of
+6.</li>
+</ul>
+<pre class="r"><code>play_wordle &lt;- function(solution, valid_list, num_guesses=6){
+#solution: answer to the wordle
+#valid_list: list of all possible words in the valid list 
+#num_guesses: number of guesses each player has
+  
+# Tell the player the rules of the game  
+  n_length &lt;- length(solution)
+  num_guesses &lt;- 6
+  print(paste(&quot;Hi! You have&quot;, num_guesses, &quot;chances to guess the&quot;, n_length, &quot;lettered word&quot;)) # Numbers of guesses left
+
+  # Display what letters the player has not yet guesses
+  
+  lettersRemaining &lt;- toupper(LETTERS) #toupper() capitilizes all letters; tolower() would make all letters lower case
+  print(paste(&quot;You have the following letters remaining:&quot;, paste(lettersRemaining, collapse=&quot; &quot;)))
+  
+# Prompt a player for a guess
+  num_guesses &lt;- 0
+  num_guesses &lt;- num_guesses + 1
+  guess &lt;- readline(prompt = paste(&quot;Enter guess number&quot;, num_guesses, &quot;then press &lt;enter&gt;: &quot;)) #Readline prompts user to enter a guess
+  guess &lt;- toupper(guess)
+  guess &lt;- str_split(guess, &quot;&quot;)
+}
+
+play_wordle(solution, valid_list, num_guesses)</code></pre>
+<pre><code>## [1] &quot;Hi! You have 6 chances to guess the 5 lettered word&quot;
+## [1] &quot;You have the following letters remaining: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z&quot;
+## Enter guess number 1 then press &lt;enter&gt;:</code></pre>
 </div>
 </div>
 

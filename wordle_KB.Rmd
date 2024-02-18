@@ -51,20 +51,27 @@ As a bonus, you might include a second argument for your pick_solution() functio
 
 Once your function works, run it and assign the result to a variable called solution.
 
-solution <- pick_solution(solution_list)
-
 ```{r}
 pick_solution <- function(word){
-  True_solution_list <- subset(True_solution_list, nchar(True_solution_list) == 5) # Keep only 5 letter long words all words
-  str_split_1(sample(True_solution_list, 1), "") # randomly select a 5-letter word and make it 5 distinct characters
+  subset(word, nchar(word) == 5) |> # Keep only 5 letter long words all words
+    sample(1) |>
+    str_split_1( "") # randomly select a 5-letter word and make it 5 distinct characters
 }
 
-solution <- pick_solution(word)
+solution <- pick_solution(True_solution_list)
 print(solution)
 ```
 
 ## Step 4
 Now, to tackle the bulk of the problem, create two more functions. The first should be called play_wordle() and it should take three arguments: [1] the answer to the puzzle (the value of your solution variable), [2] a list of valid guesses (the contents of your valid_list variable), and [3] a value for “number of guesses”, which you should set to the original Wordle game default of 6.
 
+```{r}
+play_wordle <- function(solution, valid_list, num_guesses =6){
+  Print("Hi! Welcome to Wordle. You have 6 tries to guess a 5-letter word that has been selected at random from a list of possible words. Guesses should not include swear words.")
+   print(paste("You have", num_guesses, "chances to guess the word"))
+  Print
+}
+
+```
 
 
