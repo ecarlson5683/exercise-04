@@ -148,7 +148,7 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   cat("Letters left:", letters_left) # Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.
   
   # Prompt player for a guess
-  guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: \n")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses
+  guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: ")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses
   
   # Convert guess entry to uppercase
   guess <- toupper(guess)
@@ -156,12 +156,12 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   # Check validity of guess
   while (is.character(guess)) {
   if(nchar(guess, type = "chars") != 5) { # Check for non-5-letter words and reprompt guess
-    cat("Invalid entry: Not a 5-letter word. Please try again. Letters left:", letters_left) 
-    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: \n"))
+    cat("Invalid entry: Not a 5-letter word. Please try again. \nLetters left:", letters_left) 
+    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: "))
     guess <- toupper(guess)
   } else if(!(guess %in% valid_list)) { # Check for non-valid words and reprompt guess
-    cat("Invalid entry: Not a valid word. Please try again. Letters left:", letters_left)
-    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: \n"))
+    cat("Invalid entry: Not a valid word. Please try again. \nLetters left:", letters_left)
+    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: "))
     guess <- toupper(guess)
   } else { 
     evaluate_guess(guess, solution)
