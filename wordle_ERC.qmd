@@ -207,7 +207,7 @@ evaluate_guess <- function(guess, solution){
                       guess_letters[] != solution[] ~ "-"
                       )
   }
-  cat(guess, output, "\n") # show guess next to feedback, then move to a new line
+  cat("", guess_letters, "\n", output, "\n") # show guess next to feedback, then move to a new line
   # feedback <- list(guess_letters, output) # Create list of objects to be exported from function
   # return(feedback) # Export from function to store feedback (not working, object not recognized)
 }
