@@ -126,7 +126,7 @@ The `play_wordle()` function:
 
 
 ```{r}
-# Working on Step 4.6
+# Working on Step 4.7
 
 play_wordle <- function(solution, valid_list, num_guesses=6){
   
@@ -134,10 +134,16 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   
   # Tell game rules
   n_length <- length(solution) # Return the length of the vector **solution** (5 single-letter strings)
-  cat("You have", num_guesses, "chances to guess a", n_length, "letter word. ") # Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`
+  chances <- if(i == 1){num_guesses # Update chances as player guesses
+  } else {num_guesses - (i - 1)}
+  cat("You have", chances, "chances left to guess a", n_length, "letter word.\n") # Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`
   
-  # Display letters left (updated with guessed letters, Step 4.5)
-  letters_left <- if(i == 1){LETTERS
+  # Display a key for feedback
+  if(i==1){cat("Key: * = wrong place in word; - = not in word.\n") # use \n to break to new line
+  } else {NULL}
+  
+  # Display letters left
+  letters_left <- if(i == 1){LETTERS # Update letters as player guesses
   } else {letters_left}
   cat("Letters left:", letters_left) # Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.
   
@@ -159,22 +165,27 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
     guess <- toupper(guess)
   } else { 
     evaluate_guess(guess, solution)
+    # results <- data.frame(matrix(unlist(feedback), nrow=length(feedback), byrow=TRUE)) # Record feedback, not recognized as an object
     break # End loop so run evaluate_guess() is run only once
+    # return(results) # not working
   }
   }
   
   # Update the list of letters guessed
   guess_letters <- str_split(guess, "")[[1]]
   letters_left <- setdiff(letters_left, guess_letters) # Overwrite letters_left to remove letters of guess
+  
 
   # Check if puzzle is solved
   if(identical(guess_letters, solution)) {
     cat("Congratulations Wordler!") # ToDo: and print guess history
+    # print(results) # not working
     break # end loop
   } else if (!identical(guess_letters, solution) & i < num_guesses) { 
     # Loop to beginning, now with updated letter list for remaining guesses
   } else {
     cat("No more guesses. Better luck next time!") # Loop ends, notify player of loss
+    # print(results) # not working
   }
   
   }
@@ -187,15 +198,18 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
 # guess_test <- "NOSES" # replacing `guess` to test evaluate_guess() 
 
 evaluate_guess <- function(guess, solution){
+  
   guess_letters <- str_split(guess, "")[[1]]
   
   for (i in 1:length(guess_letters)) {
-  output <- case_when(guess_letters[] == solution[] ~ "*",
-                      guess_letters[] %in% solution[] ~ "+",
+  output <- case_when(guess_letters[] == solution[] ~ guess_letters[], # Fill in correct letter
+                      guess_letters[] %in% solution[] ~ "*",
                       guess_letters[] != solution[] ~ "-"
                       )
   }
   print(output)
+  # feedback <- list(guess_letters, output) # Create list of objects to be exported from function
+  # return(feedback) # Export from function to store feedback (not working, object not recognized)
 }
 ```
 
@@ -203,10 +217,6 @@ evaluate_guess <- function(guess, solution){
 # Play wordle
 play_wordle(solution, valid_list)
 ```
-
-
-```
- 
  
  
 ## Failed strategies 
@@ -282,6 +292,6 @@ play_wordle(solution, valid_list)
 
 - Allow ***R*** to post your **Wordle** results to a social media platform of your choosing. For this, check out, e.g., the {Rfacebook} or {rtweet} packages.
 
-- Convert your code to an interactive {shiny} app to have it run in a web brower. Later modules will introduce you to programming with {shiny}.
+- Convert your code to an interactive {shiny} app to have it run in a web browser. Later modules will introduce you to programming with {shiny}.
 
 
