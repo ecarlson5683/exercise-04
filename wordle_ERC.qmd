@@ -139,7 +139,7 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   cat("You have", chances, "chances left to guess a", n_length, "letter word.\n") # Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`
   
   # Display a key for feedback
-  if(i==1){cat("Key: * = wrong place in word; - = not in word.\n") # use \n to break to new line
+  if(i==1){cat("Key: * = wrong place in word, - = not in word.\n") # use \n to break to new line
   } else {NULL}
   
   # Display letters left
@@ -148,7 +148,7 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   cat("Letters left:", letters_left) # Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.
   
   # Prompt player for a guess
-  guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: ")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses
+  guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: \n")) # Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses
   
   # Convert guess entry to uppercase
   guess <- toupper(guess)
@@ -157,11 +157,11 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   while (is.character(guess)) {
   if(nchar(guess, type = "chars") != 5) { # Check for non-5-letter words and reprompt guess
     cat("Invalid entry: Not a 5-letter word. Please try again. Letters left:", letters_left) 
-    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: "))
+    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: \n"))
     guess <- toupper(guess)
   } else if(!(guess %in% valid_list)) { # Check for non-valid words and reprompt guess
     cat("Invalid entry: Not a valid word. Please try again. Letters left:", letters_left)
-    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: "))
+    guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: \n"))
     guess <- toupper(guess)
   } else { 
     evaluate_guess(guess, solution)
@@ -178,13 +178,13 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
 
   # Check if puzzle is solved
   if(identical(guess_letters, solution)) {
-    cat("Congratulations Wordler!") # ToDo: and print guess history
+    cat("Congratulations Wordler!\n") # ToDo: and print guess history
     # print(results) # not working
     break # end loop
   } else if (!identical(guess_letters, solution) & i < num_guesses) { 
     # Loop to beginning, now with updated letter list for remaining guesses
   } else {
-    cat("No more guesses. Better luck next time!") # Loop ends, notify player of loss
+    cat("No more guesses. Better luck next time!\n") # Loop ends, notify player of loss
     # print(results) # not working
   }
   
@@ -207,7 +207,7 @@ evaluate_guess <- function(guess, solution){
                       guess_letters[] != solution[] ~ "-"
                       )
   }
-  print(output)
+  cat(guess, output, "\n") # show guess next to feedback, then move to a new line
   # feedback <- list(guess_letters, output) # Create list of objects to be exported from function
   # return(feedback) # Export from function to store feedback (not working, object not recognized)
 }
