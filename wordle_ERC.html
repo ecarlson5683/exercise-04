@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Erika Carlson">
+<meta name="dcterms.date" content="2024-02-19">
+
+<title>wordle</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="wordle_ERC_files/libs/clipboard/clipboard.min.js"></script>
+<script src="wordle_ERC_files/libs/quarto-html/quarto.js"></script>
+<script src="wordle_ERC_files/libs/quarto-html/popper.min.js"></script>
+<script src="wordle_ERC_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="wordle_ERC_files/libs/quarto-html/anchor.min.js"></script>
+<link href="wordle_ERC_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="wordle_ERC_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="wordle_ERC_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="wordle_ERC_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="wordle_ERC_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">wordle</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Erika Carlson </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 19, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="creating-a-wordle-game" class="level1 unnumbered">
+<h1 class="unnumbered">Creating a Wordle Game</h1>
+<section id="wordle-puzzle-challenge" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="wordle-puzzle-challenge"><strong>Wordle</strong> Puzzle Challenge</h2>
+<p>The rules of <strong>Wordle</strong> are simple: A player has SIX tries to guess a 5-letter word that has been selected at random from a list of possible words. Guesses need to be valid 5-letter words. After each guess, a player receives feedback about how close their guess was to the word, which provides information they can use to try to solve the puzzle. This feedback lets you know whether each letter your guess is either [1] <em>in the solution word and in the correct spot</em>, [2] <em>in the solution word but in the wrong position</em>, or [3] <em>not in the solution word</em>. In app/browser versions of <strong>Wordle</strong>, this feedback is provided visually using colors, but that need not be the case.</p>
+<p>The assignment and steps below were inspired by <a href="https://statisticaloddsandends.wordpress.com/2022/01/18/playing-wordle-in-r/">this fun blog post</a></p>
+</section>
+<section id="preliminaries" class="level2">
+<h2 class="anchored" data-anchor-id="preliminaries">Preliminaries</h2>
+<p>Two data files were downloaded from https://github.com/difiore/ada-2024-datasets to repo: * collins-scrabble-words-2019.txt * google-10000-english-usa-no-swears.txt</p>
+<p>The first (279,497 lines long) contains a list of “Official Scrabble Words” in the English language based on the <strong><em>Collins English Dictionary</em></strong> published by HarperCollins. The first line in the file is the header “words”.</p>
+<p>The second (9885 lines long) contains a list of ~10,000 of the most common words in the English language, based on data compiled by Google, and omitting common swear words. The first line in the file is the header “words”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>valid_file <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>solution_file <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="introduction" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="introduction">Introduction</h4>
+<p>Breaking down the problem into discrete pieces</p>
+<ul>
+<li>What do we need to do to <strong>set</strong> up a Wordle game?</li>
+<li>What <strong>steps</strong> does game play need to follow?</li>
+<li>What has to be <strong>evaluated</strong> at each step?</li>
+<li>How does the game <strong>end</strong>?</li>
+</ul>
+<p><strong>Things to do</strong></p>
+<ul>
+<li>Choose a mystery “solution” word that players will try to guess. The list of the most common words in the English language is a possible source of solution words for the puzzle.</li>
+<li>Establish a dictionary of “valid” words that players can guess using the list of Official Scrabble Words.</li>
+</ul>
+<blockquote class="blockquote">
+<p><strong>NOTE:</strong> The list of possible “solution” words used in the original Wordle puzzle consists of ~2100 5-letter words, while the list of “valid” words that can be used as guesses totals ~13,000. Here, <code>solution_list</code> has 9884 words, while <code>valid_list</code> has 279496 words.</p>
+</blockquote>
+</section>
+<section id="step-1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="step-1">Step 1</h4>
+<p>Created function <code>load_dictionary()</code> with single argument, “filename”, to read in csv files.</p>
+<p>Used <code>load_dictionary()</code> to create two variables, <strong>solution_list</strong> and <strong>valid_list</strong>, that contain <em>vectors</em> of possible solution words and valid words to guess.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>load_dictionary <span class="ot">&lt;-</span> <span class="cf">function</span>(filename){</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(filename, <span class="at">col_names=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> <span class="co"># Create data frame</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(words) <span class="co"># Extract vector of first column (header = words) in data frame</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(x) <span class="co"># Explicitly return output of pipe</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>valid_list <span class="ot">&lt;-</span> <span class="fu">load_dictionary</span>(valid_file) <span class="co"># Run function to create a character string of Official Scrabble Words</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>solution_list <span class="ot">&lt;-</span> <span class="fu">load_dictionary</span>(solution_file) <span class="co"># Run function to create a character string of common words</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(valid_list) <span class="co"># Verify structure of new variable</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> chr [1:279496] "AA" "AAH" "AAHED" "AAHING" "AAHS" "AAL" "AALII" "AALIIS" ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(solution_list) <span class="co"># Verify structure of new variable</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> chr [1:9884] "THE" "OF" "AND" "TO" "A" "IN" "FOR" "IS" "ON" "THAT" "BY" ...</code></pre>
+</div>
+</div>
+</section>
+<section id="step-2" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="step-2">Step 2</h4>
+<p>Winnowed <strong>solution_list</strong> to only include words that are included in <strong>valid_list</strong> using <code>intersect()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>solution_list <span class="ot">&lt;-</span> <span class="fu">intersect</span>(solution_list, valid_list)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(solution_list) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>() <span class="co"># Number of words in updated solution_list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8336</code></pre>
+</div>
+</div>
+</section>
+<section id="step-3" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="step-3">Step 3</h4>
+<p>Wrote a custom function called <code>pick_solution()</code> that [1] removes all words from <strong>solution_list</strong> that are not 5 letters in length using <code>subset()</code>, [2] then randomly chooses a single word from those that remain using <code>sample()</code>, and [3] then splits that word into a vector of single-character elements using <code>str_split()</code>.</p>
+<p>Passed <strong>solution_list</strong> vector as the argument to the function and assigned the result to <strong>solution</strong>.</p>
+<blockquote class="blockquote">
+<p>Potential modification: include a second argument in <code>pick_solution()</code> function called “word_length” that allows for a solution word that is something other than 5 characters long.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># x &lt;- solution_list[1:100] # Testing function on a subset of solution_list (replaced word with x)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pick_solution <span class="ot">&lt;-</span> <span class="cf">function</span>(word){</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  word <span class="sc">%&gt;%</span> <span class="fu">subset</span>(., <span class="fu">nchar</span>(., <span class="at">type =</span> <span class="st">"chars"</span>) <span class="sc">==</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span> <span class="co"># Subset the `solution_list` vector according to some criterion of word length. Outputs strings containing exactly 5 characters</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sample</span>(., <span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="co"># Randomly choose a single string (word) from those with exactly 5 characters</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_split</span>(., <span class="at">pattern =</span> <span class="st">""</span>) <span class="co"># Split the randomly selected string (word) into a vector of single-character elements. An empty pattern, "", is equivalent to boundary("character")</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>solution <span class="ot">&lt;-</span> <span class="fu">pick_solution</span>(solution_list)[[<span class="dv">1</span>]] <span class="co"># Run function to create a vector of single-letter strings, the letters of the solution word</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="step-4" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="step-4">Step 4</h4>
+<p>Created two more functions: <code>play_wordle()</code> with three arguments: [1] the answer to the puzzle (the value of the <strong>solution</strong> variable), [2] a list of valid guesses (the contents of the <strong>valid_list</strong> variable), and [3] a value for “number of guesses”, which defaults to 6 in the original <strong>Wordle</strong> game.</p>
+<p>The <code>play_wordle()</code> function:</p>
+<ol type="1">
+<li><p>Tells the player the rules of the game</p></li>
+<li><p>Displays what letters the player has not yet guessed (initially all 26 in alphabet)</p></li>
+<li><p>Prompts the player for a guess, reads in their guess, and checks that their guess is valid (i.e., that it contains the correct number of letters and is a word included in the “valid” word list).</p></li>
+<li><p>Compares the guess to the solution word and generates the necessary feedback, e.g., <code>&lt;letter&gt;</code> for <em>in the word and in the correct position</em>, <code>*</code> for <em>in the word but in the wrong position</em>, and <code>-</code> for <em>not in the word</em>. Uses a separate “helper” function, <code>evaluate_guess()</code>, called from within <code>play_wordle()</code>. This function has two arguments: the player’s guess and the value of the <strong>solution</strong> variable.</p></li>
+<li><p>Updates the list of letters not yet guessed.</p></li>
+<li><p>Checks if the puzzle was solved. If so, the player is told they WON the game and receive a print out of their guess and feedback history. If not, the player is prompted for another guess, unless they have already hit the maximum number of guesses allowed.</p></li>
+<li><p>If all guesses are exhausted, the function should indicate that the player LOST the game and, again, print out their guess and feedback history.</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>play_wordle <span class="ot">&lt;-</span> <span class="cf">function</span>(solution, valid_list, <span class="at">num_guesses=</span><span class="dv">6</span>){</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  feedback <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># # creating an empty list for results of evaluate_guess()</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_guesses) { <span class="co"># Create a loop for guessing (replaced `num_guesses` with `i` to count up), Step 4.6</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Tell game rules</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  n_length <span class="ot">&lt;-</span> <span class="fu">length</span>(solution) <span class="co"># Return the length of the vector **solution** (5 single-letter strings)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  chances <span class="ot">&lt;-</span> <span class="cf">if</span>(i <span class="sc">==</span> <span class="dv">1</span>){num_guesses <span class="co"># Update chances as player guesses</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {num_guesses <span class="sc">-</span> (i <span class="sc">-</span> <span class="dv">1</span>)}</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"You have"</span>, chances, <span class="st">"chances left to guess a"</span>, n_length, <span class="st">"letter word.</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Display a key for feedback</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(i<span class="sc">==</span><span class="dv">1</span>){<span class="fu">cat</span>(<span class="st">"Key: * = wrong place in word, - = not in word.</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># use \n to break to new line</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {<span class="cn">NULL</span>}</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Display letters left</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  letters_left <span class="ot">&lt;-</span> <span class="cf">if</span>(i <span class="sc">==</span> <span class="dv">1</span>){LETTERS <span class="co"># Update letters as player guesses</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {letters_left}</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Letters left:"</span>, letters_left) <span class="co"># Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prompt player for a guess</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  guess <span class="ot">&lt;-</span> <span class="fu">readline</span>(<span class="at">prompt =</span> <span class="fu">paste</span>(<span class="st">"Enter guess number"</span>, i, <span class="st">"then press &lt;enter&gt;: "</span>)) <span class="co"># Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert guess entry to uppercase</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  guess <span class="ot">&lt;-</span> <span class="fu">toupper</span>(guess)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check validity of guess</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (<span class="fu">is.character</span>(guess)) {</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">nchar</span>(guess, <span class="at">type =</span> <span class="st">"chars"</span>) <span class="sc">!=</span> <span class="dv">5</span>) { <span class="co"># Check for non-5-letter words and reprompt guess</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Invalid entry: Not a 5-letter word. Please try again. </span><span class="sc">\n</span><span class="st">Letters left:"</span>, letters_left) </span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    guess <span class="ot">&lt;-</span> <span class="fu">readline</span>(<span class="at">prompt =</span> <span class="fu">paste</span>(<span class="st">"Enter guess number"</span>, i, <span class="st">"then press &lt;enter&gt;: "</span>))</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    guess <span class="ot">&lt;-</span> <span class="fu">toupper</span>(guess)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(<span class="sc">!</span>(guess <span class="sc">%in%</span> valid_list)) { <span class="co"># Check for non-valid words and reprompt guess</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Invalid entry: Not a valid word. Please try again. </span><span class="sc">\n</span><span class="st">Letters left:"</span>, letters_left)</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    guess <span class="ot">&lt;-</span> <span class="fu">readline</span>(<span class="at">prompt =</span> <span class="fu">paste</span>(<span class="st">"Enter guess number"</span>, i, <span class="st">"then press &lt;enter&gt;: "</span>))</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    guess <span class="ot">&lt;-</span> <span class="fu">toupper</span>(guess)</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> { </span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    feedback[[i]] <span class="ot">&lt;-</span> <span class="fu">evaluate_guess</span>(guess, solution) <span class="co"># naming the results of evaluate_guess() to record feedback</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span> <span class="co"># End loop so run evaluate_guess() is run only once</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># return(results) # not working</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Update the list of letters guessed</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  guess_letters <span class="ot">&lt;-</span> <span class="fu">str_split</span>(guess, <span class="st">""</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  letters_left <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(letters_left, guess_letters) <span class="co"># Overwrite letters_left to remove letters of guess</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create a matrix of feedback for game summary</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  summary <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">unlist</span>(feedback, <span class="at">use.names =</span> <span class="cn">FALSE</span>), <span class="at">ncol =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(summary) <span class="ot">&lt;-</span><span class="fu">list</span>(<span class="fu">rep</span>(<span class="st">""</span>, <span class="fu">dim</span>(summary)[<span class="dv">1</span>]), <span class="fu">rep</span>(<span class="st">""</span>, <span class="fu">dim</span>(summary)[<span class="dv">2</span>]))</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check if puzzle is solved</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">identical</span>(guess_letters, solution)) {</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Congratulations Wordler, you won!</span><span class="sc">\n\n</span><span class="st">Guess summary:</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">noquote</span>(summary)) <span class="co"># print guess and feedback history without quotes</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span> <span class="co"># end loop</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">identical</span>(guess_letters, solution) <span class="sc">&amp;</span> i <span class="sc">&lt;</span> num_guesses) { </span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop to beginning, now with updated letter list for remaining guesses</span></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">No more guesses. Better luck next time!</span><span class="sc">\n\n</span><span class="st">Guess summary:</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># Loop ends, notify player of loss</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">noquote</span>(summary)) <span class="co"># print guess and feedback history without quotes</span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to evaluate valid guesses</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># guess_test &lt;- "NOSES" # replacing `guess` to test evaluate_guess() </span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>evaluate_guess <span class="ot">&lt;-</span> <span class="cf">function</span>(guess, solution){</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  guess_letters <span class="ot">&lt;-</span> <span class="fu">str_split</span>(guess, <span class="st">""</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(guess_letters)) {</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">case_when</span>(guess_letters[] <span class="sc">==</span> solution[] <span class="sc">~</span> guess_letters[], <span class="co"># Fill in correct letter</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                      guess_letters[] <span class="sc">%in%</span> solution[] <span class="sc">~</span> <span class="st">"*"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                      guess_letters[] <span class="sc">!=</span> solution[] <span class="sc">~</span> <span class="st">"-"</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                      )</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">""</span>, guess_letters, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, output, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># show guess next to feedback, then move to a new line</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  feedback <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">guess =</span> guess_letters, <span class="at">output =</span> output) <span class="co"># Create list of objects to be exported from function</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(feedback) <span class="co"># Export from function to store feedback (not working, object not recognized)</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Play wordle!</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">play_wordle</span>(solution, valid_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="optional-next-steps" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="optional-next-steps">Optional Next Steps</h4>
+<ul>
+<li><p>Try modifying your code to mimic the “hard mode” in <strong>Wordle</strong>, where information about the letters in the solution and their positions revealed in prior guesses has to be used in subsequent guesses.</p></li>
+<li><p>Try spicing up the feedback given using colors or alternative formatting. One way to do this would be to use the {huxtable} package, which is a package for creating text tables that can be styled for display in the <strong><em>R</em></strong> console and can also output to HTML, PDF, and a variety of other formats.</p></li>
+<li><p>Have <strong><em>R</em></strong> keep track of the date and not let you play more than one <strong>Wordle</strong> game per day.</p></li>
+<li><p>Have <strong><em>R</em></strong> keep track of your performance across multiple games of <strong>Wordle</strong>.</p></li>
+<li><p>Allow <strong><em>R</em></strong> to post your <strong>Wordle</strong> results to a social media platform of your choosing. For this, check out, e.g., the {Rfacebook} or {rtweet} packages.</p></li>
+<li><p>Convert your code to an interactive {shiny} app to have it run in a web browser. Later modules will introduce you to programming with {shiny}.</p></li>
+</ul>
+</section>
+</section>
+<section id="failed-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="failed-strategies">Failed strategies</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># failed strategy for subsetting solution list by character</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># string &lt;- solution_list[1:100] # testing function on a subset of solution_list</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># pick_solution &lt;- function(string){</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># string %&gt;% str_subset(., pattern = "[a-z]{5}")</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># failed strategy 1 for valid guess check</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># case_when(</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   guess %in% valid_list &amp; nchar(guess, type = "chars") == 5 ~ letters_left, # ToDo: should go to evaluate_guess()</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   nchar(guess, type = "chars") != 5 ~ readline("Error: Not a 5-letter word. Re-enter guess then press &lt;enter&gt;: "), # ToDo: should go back to update `guess `</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   !(guess %in% valid_list) ~ readline("Error: Not a valid word. Re-enter guess then press &lt;enter&gt;: "), # ToDo: should go back to update `guess `</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   .default = NULL</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   ) </span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># failed strategy 2 for valid guess check</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># while (nchar(guess, type = "chars") != 5) {</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   cat("Error: Not a 5-letter word.")</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   guess &lt;- readline(guess_prompt) # overwriting guess</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># }</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># </span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># while (!(guess %in% valid_list) {</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   cat("Error: Not a valid word.")</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   guess &lt;- readline(guess_prompt) # overwriting guess</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># }</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># </span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># while (guess %in% valid_list &amp; nchar(guess, type = "chars") == 5) {</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   # evaluate_guess()</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># }</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="co"># failed strategy 3 for valid guess check (only need to check for non-valid entries, then continue)</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># while (is.character(guess)) {</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># if(guess %in% valid_list &amp; nchar(guess, type = "chars") == 5){</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   print("Continue")</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   # evaluate_guess() # to write</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   guess &lt;- readline(prompt = paste("Enter guess number", num_guesses, "then press &lt;enter&gt;: "))</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># } else if(nchar(guess, type = "chars") != 5) {</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   print("Invalid entry: Not a 5-letter word. Please try again.")</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   guess &lt;- readline(prompt = paste("Enter guess number", num_guesses, "then press &lt;enter&gt;: "))</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># } else { </span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   print("You exited the game.")</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   break</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>  <span class="co"># }</span></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># }</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

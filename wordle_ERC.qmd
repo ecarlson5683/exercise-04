@@ -1,6 +1,7 @@
 ---
 title: "wordle"
 author: "Erika Carlson"
+date: 2024-02-19
 format: html
 editor_options: 
   chunk_output_type: console
@@ -17,9 +18,8 @@ The assignment and steps below were inspired by [this fun blog post](https://sta
 ## Preliminaries
 
 Two data files were downloaded from https://github.com/difiore/ada-2024-datasets to repo:
-
-collins-scrabble-words-2019.txt
-google-10000-english-usa-no-swears.txt
+* collins-scrabble-words-2019.txt
+* google-10000-english-usa-no-swears.txt
 
 The first (279,497 lines long) contains a list of “Official Scrabble Words” in the English language based on the ***Collins English Dictionary*** published by HarperCollins. The first line in the file is the header “words”.
 
@@ -34,22 +34,29 @@ solution_file <- "https://raw.githubusercontent.com/ecarlson5683/exercise-04/mai
 
 #### Introduction {.unnumbered}
 
-Step 0: Break down the problem into discrete pieces... What do we need to do to **set** up a Wordle game? What **steps** does game play need to follow? What has to be **evaluated** at each step? How does the game **end**?
+Breaking down the problem into discrete pieces
+
+* What do we need to do to **set** up a Wordle game? 
+* What **steps** does game play need to follow? 
+* What has to be **evaluated** at each step? 
+* How does the game **end**?
 
 **Things to do**
 
-* Choose a mystery "solution" word that players will try to guess. We will use the list of the most common words in the English language to do this as a possible source of solution words for the puzzle.
-* Establish a dictionary of "valid" words that players can guess. We will use the list of Official Scrabble Words.
+* Choose a mystery "solution" word that players will try to guess. The list of the most common words in the English language is a possible source of solution words for the puzzle.
+* Establish a dictionary of "valid" words that players can guess using the list of Official Scrabble Words.
 
-> **NOTE:** The list of possible "solution" words used in the original Wordle puzzle consists of ~2100 5-letter words, while the list of "valid" words that can be used as guesses totals ~13,000. How many 5-letter words are in each of the two data files you have downloaded?
+> **NOTE:** The list of possible "solution" words used in the original Wordle puzzle consists of ~2100 5-letter words, while the list of "valid" words that can be used as guesses totals ~13,000. Here, `solution_list` has 9884 words, while `valid_list` has 279496 words.
 
 #### Step 1 {.unnumbered}
 
-- Created function `load_dictionary()` with single argument, "filename", to read in csv files.
+Created function `load_dictionary()` with single argument, "filename", to read in csv files.
 
-- Used `load_dictionary()` to create two variables, **solution_list** and **valid_list**, that contain *vectors* of possible solution words and valid words to guess.
+Used `load_dictionary()` to create two variables, **solution_list** and **valid_list**, that contain *vectors* of possible solution words and valid words to guess.
 
 ```{r}
+#| warning: false
+
 load_dictionary <- function(filename){
   library(tidyverse)
   x <- read_csv(filename, col_names=TRUE) %>% # Create data frame
@@ -62,33 +69,27 @@ solution_list <- load_dictionary(solution_file) # Run function to create a chara
 
 str(valid_list) # Verify structure of new variable
 str(solution_list) # Verify structure of new variable
-
-# done!
 ```
 
 
 #### Step 2 {.unnumbered}
 
-- Winnowed **solution_list** to only include words that are included in **valid_list** using `intersect()`.
+Winnowed **solution_list** to only include words that are included in **valid_list** using `intersect()`.
 
 ```{r}
 solution_list <- intersect(solution_list, valid_list)
 
 length(solution_list) %>% 
-  print() # Number of words in updated solution_list = 8336
-
-# done!
+  print() # Number of words in updated solution_list
 ```
 
 #### Step 3 {.unnumbered}
 
-- Wrote a custom function called `pick_solution()` that [1] removes all words from **solution_list** that are not 5 letters in length, [2] then randomly chooses a single word from those that remain, and [3] then splits that word into a vector of single-character elements. 
+Wrote a custom function called `pick_solution()` that [1] removes all words from **solution_list** that are not 5 letters in length using `subset()`, [2] then randomly chooses a single word from those that remain using `sample()`, and [3] then splits that word into a vector of single-character elements using `str_split()`. 
 
 Passed **solution_list** vector as the argument to the function and assigned the result to **solution**.
 
-> **HINT**: For [1], you will want to . For [2], you may find the `sample()` function useful (use ***R*** help to look up documentation on that function). For [3], you may want to look at the functions `strsplit()` from {base} ***R*** or `str_split()` from the {stringr} package (part of {tidyverse}).
-
-As a bonus, you might include a second argument for your `pick_solution()` function called "word_length" that makes your function flexible enough to select a solution word that is something other than 5 characters long.
+> Potential modification: include a second argument in `pick_solution()` function called "word_length" that allows for a solution word that is something other than 5 characters long.
 
 ```{r}
 # x <- solution_list[1:100] # Testing function on a subset of solution_list (replaced word with x)
@@ -100,8 +101,6 @@ pick_solution <- function(word){
 }
 
 solution <- pick_solution(solution_list)[[1]] # Run function to create a vector of single-letter strings, the letters of the solution word
-
-# done!
 ```
 
 #### Step 4 {.unnumbered}
@@ -110,13 +109,13 @@ Created two more functions: `play_wordle()` with three arguments: [1] the answer
 
 The `play_wordle()` function:
 
-1. Tells the player the rules of the game, e.g., "You have ... chances to guess a word of length ..."
+1. Tells the player the rules of the game
 
-2. Displays what letters the player has not yet guessed (initially all 26 in alphabet), e.g., "Letters left: ..."
+2. Displays what letters the player has not yet guessed (initially all 26 in alphabet)
 
-3. Prompts the player for a guess, e.g., "Enter guess number ...", read in their guess, and check that their guess is valid (i.e., that it contains the correct number of letters and is a word included in the "valid" word list).
+3. Prompts the player for a guess, reads in their guess, and checks that their guess is valid (i.e., that it contains the correct number of letters and is a word included in the "valid" word list).
 
-4. Compares the guess to the solution word and generates the necessary feedback, e.g., `*` for *in the word and in the correct position*, `+` for *in the word but in the wrong position*, and `-` for *not in the word*. Uses a separate "helper" function, `evaluate_guess()`, called from within `play_wordle()`. This function has two arguments: the player's guess and the value of the **solution** variable.
+4. Compares the guess to the solution word and generates the necessary feedback, e.g., `<letter>` for *in the word and in the correct position*, `*` for *in the word but in the wrong position*, and `-` for *not in the word*. Uses a separate "helper" function, `evaluate_guess()`, called from within `play_wordle()`. This function has two arguments: the player's guess and the value of the **solution** variable.
 
 5. Updates the list of letters not yet guessed.
 
@@ -126,11 +125,8 @@ The `play_wordle()` function:
 
 
 ```{r}
-# Working on Step 4.7
-
 play_wordle <- function(solution, valid_list, num_guesses=6){
-  library(tidyverse)
-  
+
   feedback <- list() # # creating an empty list for results of evaluate_guess()
   
   for (i in 1:num_guesses) { # Create a loop for guessing (replaced `num_guesses` with `i` to count up), Step 4.6
@@ -219,9 +215,26 @@ evaluate_guess <- function(guess, solution){
 ```
 
 ```{r}
-# Play wordle
+#| eval: false
+
+# Play wordle!
 play_wordle(solution, valid_list)
 ```
+ 
+
+#### Optional Next Steps {.unnumbered}
+
+- Try modifying your code to mimic the "hard mode" in **Wordle**, where information about the letters in the solution and their positions revealed in prior guesses has to be used in subsequent guesses.
+
+- Try spicing up the feedback given using colors or alternative formatting. One way to do this would be to use the {huxtable} package, which is a package for creating text tables that can be styled for display in the ***R*** console and can also output to HTML, PDF, and a variety of other formats.
+
+- Have ***R*** keep track of the date and not let you play more than one **Wordle** game per day.
+
+- Have ***R*** keep track of your performance across multiple games of **Wordle**.
+
+- Allow ***R*** to post your **Wordle** results to a social media platform of your choosing. For this, check out, e.g., the {Rfacebook} or {rtweet} packages.
+
+- Convert your code to an interactive {shiny} app to have it run in a web browser. Later modules will introduce you to programming with {shiny}. 
  
  
 ## Failed strategies 
@@ -283,20 +296,5 @@ play_wordle(solution, valid_list)
   # }
   # }
 ```
-
-
-#### Optional Next Steps? {.unnumbered}
-
-- Try modifying your code to mimic the "hard mode" in **Wordle**, where information about the letters in the solution and their positions revealed in prior guesses has to be used in subsequent guesses.
-
-- Try spicing up the feedback given using colors or alternative formatting. One way to do this would be to use the {huxtable} package, which is a package for creating text tables that can be styled for display in the ***R*** console and can also output to HTML, PDF, and a variety of other formats.
-
-- Have ***R*** keep track of the date and not let you play more than one **Wordle** game per day.
-
-- Have ***R*** keep track of your performance across multiple games of **Wordle**.
-
-- Allow ***R*** to post your **Wordle** results to a social media platform of your choosing. For this, check out, e.g., the {Rfacebook} or {rtweet} packages.
-
-- Convert your code to an interactive {shiny} app to have it run in a web browser. Later modules will introduce you to programming with {shiny}.
 
 
