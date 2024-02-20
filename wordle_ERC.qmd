@@ -129,6 +129,9 @@ The `play_wordle()` function:
 # Working on Step 4.7
 
 play_wordle <- function(solution, valid_list, num_guesses=6){
+  library(tidyverse)
+  
+  feedback <- list() # # creating an empty list for results of evaluate_guess()
   
   for (i in 1:num_guesses) { # Create a loop for guessing (replaced `num_guesses` with `i` to count up), Step 4.6
   
@@ -164,8 +167,7 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
     guess <- readline(prompt = paste("Enter guess number", i, "then press <enter>: "))
     guess <- toupper(guess)
   } else { 
-    evaluate_guess(guess, solution)
-    # results <- data.frame(matrix(unlist(feedback), nrow=length(feedback), byrow=TRUE)) # Record feedback, not recognized as an object
+    feedback[[i]] <- evaluate_guess(guess, solution) # naming the results of evaluate_guess() to record feedback
     break # End loop so run evaluate_guess() is run only once
     # return(results) # not working
   }
@@ -175,17 +177,20 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   guess_letters <- str_split(guess, "")[[1]]
   letters_left <- setdiff(letters_left, guess_letters) # Overwrite letters_left to remove letters of guess
   
-
+  # Create a matrix of feedback for game summary
+  summary <- matrix(unlist(feedback, use.names = FALSE), ncol = 5, byrow = TRUE)
+  dimnames(summary) <-list(rep("", dim(summary)[1]), rep("", dim(summary)[2]))
+  
   # Check if puzzle is solved
   if(identical(guess_letters, solution)) {
-    cat("Congratulations Wordler!\n") # ToDo: and print guess history
-    # print(results) # not working
+    cat("\nCongratulations Wordler, you won!\n\nGuess summary:\n")
+    print(noquote(summary)) # print guess and feedback history without quotes
     break # end loop
   } else if (!identical(guess_letters, solution) & i < num_guesses) { 
     # Loop to beginning, now with updated letter list for remaining guesses
   } else {
-    cat("No more guesses. Better luck next time!\n") # Loop ends, notify player of loss
-    # print(results) # not working
+    cat("\nNo more guesses. Better luck next time!\n\nGuess summary:\n") # Loop ends, notify player of loss
+    print(noquote(summary)) # print guess and feedback history without quotes
   }
   
   }
@@ -208,8 +213,8 @@ evaluate_guess <- function(guess, solution){
                       )
   }
   cat("", guess_letters, "\n", output, "\n") # show guess next to feedback, then move to a new line
-  # feedback <- list(guess_letters, output) # Create list of objects to be exported from function
-  # return(feedback) # Export from function to store feedback (not working, object not recognized)
+  feedback <- list(guess = guess_letters, output = output) # Create list of objects to be exported from function
+  return(feedback) # Export from function to store feedback (not working, object not recognized)
 }
 ```
 
