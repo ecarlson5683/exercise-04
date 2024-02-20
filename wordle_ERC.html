@@ -218,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>play_wordle <span class="ot">&lt;-</span> <span class="cf">function</span>(solution, valid_list, <span class="at">num_guesses=</span><span class="dv">6</span>){</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  feedback <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># # creating an empty list for results of evaluate_guess()</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  feedback <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># Create an empty list for results of evaluate_guess()</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_guesses) { <span class="co"># Create a loop for guessing (replaced `num_guesses` with `i` to count up), Step 4.6</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -229,16 +229,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"You have"</span>, chances, <span class="st">"chances left to guess a"</span>, n_length, <span class="st">"letter word.</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># Create a string for rules sentence with modifiable guess number and word length, then output. Alternative to `print(paste0())`</span></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Display a key for feedback</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(i<span class="sc">==</span><span class="dv">1</span>){<span class="fu">cat</span>(<span class="st">"Key: * = wrong place in word, - = not in word.</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># use \n to break to new line</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(i<span class="sc">==</span><span class="dv">1</span>){<span class="fu">cat</span>(<span class="st">"Key: * = wrong place in word, - = not in word.</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># Use \n to break to new line</span></span>
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {<span class="cn">NULL</span>}</span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Display letters left</span></span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  letters_left <span class="ot">&lt;-</span> <span class="cf">if</span>(i <span class="sc">==</span> <span class="dv">1</span>){LETTERS <span class="co"># Update letters as player guesses</span></span>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {letters_left}</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Letters left:"</span>, letters_left) <span class="co"># Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`.</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Letters left:"</span>, letters_left) <span class="co"># Create a string of alphabet then output. Alternative to `paste(LETTERS, collapse = " ")` then `print(paste0())`</span></span>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prompt player for a guess</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  guess <span class="ot">&lt;-</span> <span class="fu">readline</span>(<span class="at">prompt =</span> <span class="fu">paste</span>(<span class="st">"Enter guess number"</span>, i, <span class="st">"then press &lt;enter&gt;: "</span>)) <span class="co"># Take a character string as an argument and provide a "prompt" entering a line of numeric or character data. ToDo: should be guesses taken, not num_guesses</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  guess <span class="ot">&lt;-</span> <span class="fu">readline</span>(<span class="at">prompt =</span> <span class="fu">paste</span>(<span class="st">"Enter guess number"</span>, i, <span class="st">"then press &lt;enter&gt;: "</span>)) <span class="co"># Take a character string as an argument and provide a "prompt" entering a line of numeric or character data</span></span>
 <span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert guess entry to uppercase</span></span>
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  guess <span class="ot">&lt;-</span> <span class="fu">toupper</span>(guess)</span>
@@ -254,35 +254,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    guess <span class="ot">&lt;-</span> <span class="fu">readline</span>(<span class="at">prompt =</span> <span class="fu">paste</span>(<span class="st">"Enter guess number"</span>, i, <span class="st">"then press &lt;enter&gt;: "</span>))</span>
 <span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    guess <span class="ot">&lt;-</span> <span class="fu">toupper</span>(guess)</span>
 <span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> { </span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    feedback[[i]] <span class="ot">&lt;-</span> <span class="fu">evaluate_guess</span>(guess, solution) <span class="co"># naming the results of evaluate_guess() to record feedback</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    feedback[[i]] <span class="ot">&lt;-</span> <span class="fu">evaluate_guess</span>(guess, solution) <span class="co"># Name the results of evaluate_guess() to record feedback</span></span>
 <span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span> <span class="co"># End loop so run evaluate_guess() is run only once</span></span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># return(results) # not working</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Update the list of letters guessed</span></span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  guess_letters <span class="ot">&lt;-</span> <span class="fu">str_split</span>(guess, <span class="st">""</span>)[[<span class="dv">1</span>]]</span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  letters_left <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(letters_left, guess_letters) <span class="co"># Overwrite letters_left to remove letters of guess</span></span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create a matrix of feedback for game summary</span></span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  summary <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">unlist</span>(feedback, <span class="at">use.names =</span> <span class="cn">FALSE</span>), <span class="at">ncol =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(summary) <span class="ot">&lt;-</span><span class="fu">list</span>(<span class="fu">rep</span>(<span class="st">""</span>, <span class="fu">dim</span>(summary)[<span class="dv">1</span>]), <span class="fu">rep</span>(<span class="st">""</span>, <span class="fu">dim</span>(summary)[<span class="dv">2</span>]))</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check if puzzle is solved</span></span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">identical</span>(guess_letters, solution)) {</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Congratulations Wordler, you won!</span><span class="sc">\n\n</span><span class="st">Guess summary:</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">noquote</span>(summary)) <span class="co"># print guess and feedback history without quotes</span></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span> <span class="co"># end loop</span></span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">identical</span>(guess_letters, solution) <span class="sc">&amp;</span> i <span class="sc">&lt;</span> num_guesses) { </span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop to beginning, now with updated letter list for remaining guesses</span></span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">No more guesses. Better luck next time!</span><span class="sc">\n\n</span><span class="st">Guess summary:</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># Loop ends, notify player of loss</span></span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">noquote</span>(summary)) <span class="co"># print guess and feedback history without quotes</span></span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Update the list of letters guessed</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>  guess_letters <span class="ot">&lt;-</span> <span class="fu">str_split</span>(guess, <span class="st">""</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  letters_left <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(letters_left, guess_letters) <span class="co"># Overwrite letters_left to remove letters of guess</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create a matrix of feedback for game summary</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  summary <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">unlist</span>(feedback, <span class="at">use.names =</span> <span class="cn">FALSE</span>), <span class="at">ncol =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(summary) <span class="ot">&lt;-</span><span class="fu">list</span>(<span class="fu">rep</span>(<span class="st">""</span>, <span class="fu">dim</span>(summary)[<span class="dv">1</span>]), <span class="fu">rep</span>(<span class="st">""</span>, <span class="fu">dim</span>(summary)[<span class="dv">2</span>]))</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check if puzzle is solved</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">identical</span>(guess_letters, solution)) {</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Congratulations Wordler, you won!</span><span class="sc">\n\n</span><span class="st">Guess summary:</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">noquote</span>(summary)) <span class="co"># Print guess and feedback history without quotes</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span> <span class="co"># end loop</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">identical</span>(guess_letters, solution) <span class="sc">&amp;</span> i <span class="sc">&lt;</span> num_guesses) { </span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop to beginning, now with updated letter list for remaining guesses</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">No more guesses. Better luck next time!</span><span class="sc">\n\n</span><span class="st">Guess summary:</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># Loop ends, notify player of loss</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">noquote</span>(summary)) <span class="co"># Print guess and feedback history without quotes</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to evaluate valid guesses</span></span>
@@ -298,9 +297,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                      guess_letters[] <span class="sc">!=</span> solution[] <span class="sc">~</span> <span class="st">"-"</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                      )</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">""</span>, guess_letters, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, output, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># show guess next to feedback, then move to a new line</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">""</span>, guess_letters, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, output, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>) <span class="co"># Show guess, then feedback, then move to a new line</span></span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  feedback <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">guess =</span> guess_letters, <span class="at">output =</span> output) <span class="co"># Create list of objects to be exported from function</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(feedback) <span class="co"># Export from function to store feedback (not working, object not recognized)</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(feedback) <span class="co"># Export from function to store feedback</span></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
