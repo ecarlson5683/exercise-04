@@ -184,7 +184,7 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
   } else if (!identical(guess_letters, solution) & i < num_guesses) { 
     # Loop to beginning, now with updated letter list for remaining guesses
   } else {
-    cat("\nNo more guesses. Better luck next time!\n\nGuess summary:\n") # Loop ends, notify player of loss
+    cat("\nNo more guesses. Better luck next time! Solution:", solution, "\n\nGuess summary:\n") # Loop ends, notify player of loss and correct solution
     print(noquote(summary)) # Print guess and feedback history without quotes
   }
   
@@ -195,9 +195,10 @@ play_wordle <- function(solution, valid_list, num_guesses=6){
 
 ```{r}
 # Helper function to evaluate valid guesses
-# guess_test <- "NOSES" # replacing `guess` to test evaluate_guess() 
 
 evaluate_guess <- function(guess, solution){
+  
+  library(tidyverse)
   
   guess_letters <- str_split(guess, "")[[1]]
   
@@ -234,6 +235,41 @@ play_wordle(solution, valid_list)
 - Allow ***R*** to post your **Wordle** results to a social media platform of your choosing. For this, check out, e.g., the {Rfacebook} or {rtweet} packages.
 
 - Convert your code to an interactive {shiny} app to have it run in a web browser. Later modules will introduce you to programming with {shiny}. 
+
+```{r}
+#| eval: false
+
+# Modification to colored blocks in feedback
+# Helper function to evaluate valid guesses
+guess_test <- "NOSES" # replacing `guess` to test evaluate_guess()
+
+install.packages("huxtable") # adding color to feedback
+
+evaluate_guess <- function(guess_test, solution){
+  
+  library(huxtable)
+  library(tidyverse)
+  
+  guess_letters <- str_split(guess_test, "")[[1]]
+  
+  for (i in 1:length(guess_letters)) {
+  output <- case_when(guess_letters[] == solution[] ~ guess_letters[], # Fill in correct letter
+                      guess_letters[] %in% solution[] ~ "*",
+                      guess_letters[] != solution[] ~ "-"
+                      )
+  # Add color to feedback
+  output <- as_hux(matrix(unlist(output, use.names = FALSE), ncol = 5, byrow = TRUE))
+  output <- set_background_color(where(output[1:5]), "green") %>% set_text_color(everywhere, "white") %>% set_all_borders(brdr(2, "solid", "white")) 
+  }
+  print(output)
+  # cat("", guess_letters, "\n", output, "\n") # Show guess, then feedback, then move to a new line
+  feedback <- list(guess = guess_letters, output = output) # Create list of objects to be exported from function
+  return(feedback) # Export from function to store feedback
+}
+
+evaluate_guess(guess_test, solution)
+```
+
  
  
 ## Failed strategies 
