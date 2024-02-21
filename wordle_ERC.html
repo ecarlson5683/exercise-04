@@ -116,37 +116,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="unnumbered anchored" data-anchor-id="wordle-puzzle-challenge"><strong>Wordle</strong> Puzzle Challenge</h2>
 <p>The rules of <strong>Wordle</strong> are simple: A player has SIX tries to guess a 5-letter word that has been selected at random from a list of possible words. Guesses need to be valid 5-letter words. After each guess, a player receives feedback about how close their guess was to the word, which provides information they can use to try to solve the puzzle. This feedback lets you know whether each letter your guess is either [1] <em>in the solution word and in the correct spot</em>, [2] <em>in the solution word but in the wrong position</em>, or [3] <em>not in the solution word</em>. In app/browser versions of <strong>Wordle</strong>, this feedback is provided visually using colors, but that need not be the case.</p>
 <p>The assignment and steps below were inspired by <a href="https://statisticaloddsandends.wordpress.com/2022/01/18/playing-wordle-in-r/">this fun blog post</a></p>
-</section>
-<section id="preliminaries" class="level2">
-<h2 class="anchored" data-anchor-id="preliminaries">Preliminaries</h2>
-<p>Two data files were downloaded from https://github.com/difiore/ada-2024-datasets to repo: * collins-scrabble-words-2019.txt * google-10000-english-usa-no-swears.txt</p>
-<p>The first (279,497 lines long) contains a list of “Official Scrabble Words” in the English language based on the <strong><em>Collins English Dictionary</em></strong> published by HarperCollins. The first line in the file is the header “words”.</p>
-<p>The second (9885 lines long) contains a list of ~10,000 of the most common words in the English language, based on data compiled by Google, and omitting common swear words. The first line in the file is the header “words”.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>valid_file <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt"</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>solution_file <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<section id="introduction" class="level4 unnumbered">
-<h4 class="unnumbered anchored" data-anchor-id="introduction">Introduction</h4>
-<p>Breaking down the problem into discrete pieces</p>
+<p><strong>Breaking down the problem into discrete pieces</strong></p>
 <ul>
 <li>What do we need to do to <strong>set</strong> up a Wordle game?</li>
 <li>What <strong>steps</strong> does game play need to follow?</li>
 <li>What has to be <strong>evaluated</strong> at each step?</li>
 <li>How does the game <strong>end</strong>?</li>
 </ul>
+<section id="step-1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="step-1">Step 1</h4>
+<p>Downloaded two data files from https://github.com/difiore/ada-2024-datasets to exercise-04 repo</p>
+<ul>
+<li>collins-scrabble-words-2019.txt
+<ul>
+<li>Contains a list of “Official Scrabble Words” in the English language based on the <strong><em>Collins English Dictionary</em></strong> published by HarperCollins. The first line in the file is the header “words”. (279,497 lines long)</li>
+</ul></li>
+<li>google-10000-english-usa-no-swears.txt
+<ul>
+<li>Contains a list of ~10,000 of the most common words in the English language, based on data compiled by Google, and omitting common swear words. The first line in the file is the header “words”. (9885 lines long)</li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>valid_file <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/collins-scrabble-words-2019.txt"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>solution_file <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/ecarlson5683/exercise-04/main/google-10000-english-usa-no-swears.txt"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p><strong>Things to do</strong></p>
 <ul>
 <li>Choose a mystery “solution” word that players will try to guess. The list of the most common words in the English language is a possible source of solution words for the puzzle.</li>
 <li>Establish a dictionary of “valid” words that players can guess using the list of Official Scrabble Words.</li>
 </ul>
-<blockquote class="blockquote">
-<p><strong>NOTE:</strong> The list of possible “solution” words used in the original Wordle puzzle consists of ~2100 5-letter words, while the list of “valid” words that can be used as guesses totals ~13,000. Here, <code>solution_list</code> has 9884 words, while <code>valid_list</code> has 279496 words.</p>
-</blockquote>
-</section>
-<section id="step-1" class="level4 unnumbered">
-<h4 class="unnumbered anchored" data-anchor-id="step-1">Step 1</h4>
 <p>Created function <code>load_dictionary()</code> with single argument, “filename”, to read in csv files.</p>
 <p>Used <code>load_dictionary()</code> to create two variables, <strong>solution_list</strong> and <strong>valid_list</strong>, that contain <em>vectors</em> of possible solution words and valid words to guess.</p>
 <div class="cell">
@@ -169,6 +168,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code> chr [1:9884] "THE" "OF" "AND" "TO" "A" "IN" "FOR" "IS" "ON" "THAT" "BY" ...</code></pre>
 </div>
 </div>
+<blockquote class="blockquote">
+<p><strong>NOTE:</strong> The list of possible “solution” words used in the original Wordle puzzle consists of ~2100 5-letter words, while the list of “valid” words that can be used as guesses totals ~13,000. Here, <code>solution_list</code> has 9884 words, while <code>valid_list</code> has 279496 words.</p>
+</blockquote>
 </section>
 <section id="step-2" class="level4 unnumbered">
 <h4 class="unnumbered anchored" data-anchor-id="step-2">Step 2</h4>
@@ -303,13 +305,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(feedback) <span class="co"># Export from function to store feedback</span></span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="play-wordle" class="level4">
+<h4 class="anchored" data-anchor-id="play-wordle">Play Wordle!</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Play wordle!</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">play_wordle</span>(solution, valid_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">play_wordle</span>(solution, valid_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="optional-next-steps" class="level4 unnumbered">
-<h4 class="unnumbered anchored" data-anchor-id="optional-next-steps">Optional Next Steps</h4>
+</section>
+<section id="optional-next-steps" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="optional-next-steps">Optional Next Steps</h2>
 <ul>
 <li><p>Try modifying your code to mimic the “hard mode” in <strong>Wordle</strong>, where information about the letters in the solution and their positions revealed in prior guesses has to be used in subsequent guesses.</p></li>
 <li><p>Try spicing up the feedback given using colors or alternative formatting. One way to do this would be to use the {huxtable} package, which is a package for creating text tables that can be styled for display in the <strong><em>R</em></strong> console and can also output to HTML, PDF, and a variety of other formats.</p></li>
@@ -349,7 +354,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="fu">evaluate_guess</span>(guess_test, solution)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
 </section>
 <section id="failed-strategies" class="level2">
 <h2 class="anchored" data-anchor-id="failed-strategies">Failed strategies</h2>
