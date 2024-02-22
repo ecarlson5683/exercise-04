@@ -442,54 +442,114 @@ characters long.</p>
   subset(word, nchar(word) == 5) |&gt; # Keep only 5 letter long words all words
     sample(1) |&gt;
     str_split_1( &quot;&quot;) # randomly select a 5-letter word and make it 5 distinct characters
-}
-
+}</code></pre>
+<pre class="r"><code># Run Code Chunk to Update Solution
 solution &lt;- pick_solution(True_solution_list)
 print(solution)</code></pre>
-<pre><code>## [1] &quot;F&quot; &quot;A&quot; &quot;T&quot; &quot;A&quot; &quot;L&quot;</code></pre>
+<pre><code>## [1] &quot;E&quot; &quot;I&quot; &quot;G&quot; &quot;H&quot; &quot;T&quot;</code></pre>
 </div>
 <div id="step-4" class="section level2">
 <h2>Step 4</h2>
 <ul>
-<li>Create two more functions. The first should be called play_wordle()
+<li>Created two more functions. The first should be called play_wordle()
 and it should take three arguments: [1] the answer to the puzzle (the
 value of your solution variable), [2] a list of valid guesses (the
 contents of your valid_list variable), and [3] a value for “number of
 guesses”, which you should set to the original Wordle game default of
 6.</li>
+<li>Compare the guess to the solution word and generate the necessary
+feedback, e.g., * for in the word and in the correct position, + for in
+the word but in the wrong position, and - for not in the word. For this
+step, wrote a separate “helper” function, evaluate_guess(), called from
+within play_wordle(). This function should take, as arguments, the
+player’s guess and the value of the solution variable.</li>
 </ul>
 <pre class="r"><code>play_wordle_KB &lt;- function(solution, valid_list, num_guesses=6){
-  # Tell the player the rules of the game  
-  word_length &lt;- length(solution)
-  num_guesses &lt;- 6
-  print(paste(&quot;Hi! You have&quot;, num_guesses, &quot;chances to guess the&quot;, word_length, &quot;lettered word&quot;)) # Numbers of guesses left
   
-  # Display what letters the player has not yet guessed 
-  lettersRemaining &lt;- toupper(LETTERS) #toupper() capitalizes all letters; tolower() would make all letters lower case
-  print(paste(&quot;You have the following letters remaining:&quot;, paste(lettersRemaining, collapse=&quot; &quot;)))
-
-# Prompt a player for a guess
-  num_guesses &lt;- 0
-  num_guesses &lt;- num_guesses + 1
-  guess &lt;- readline(prompt = paste(&quot;Enter guess number&quot;, num_guesses, &quot;then press &lt;enter&gt;: &quot;)) #Readline prompts user to enter a guess
+  feedback &lt;- list() # Create an empty list for results of evaluate_guess()
+  
+  for (i in 1:num_guesses) { # Create a loop for guessing (replaced `num_guesses` with `i` to count up)
+  
+    # Tell the player the rules of the game  
+    n_length &lt;- length(solution) # Return the length of the solution. This allows some flexibility if you wanted to play a longer- or shorter-character Wordle game
+    chances &lt;- if(i == 1){num_guesses # Update chances as player guesses
+    } else {num_guesses - (i - 1)}
+    
+    # Display number of remaining guesses
+  print(paste(&quot;You now have&quot;, (7-i), &quot;chances to guess the&quot;, n_length, &quot;lettered word&quot;)) # Numbers of guesses left
+  
+ # Display a key for feedback
+  if(i==1){print(&quot;Key: * = wrong place in word, - = not in word.&quot;)
+  } else {NULL}
+  
+   # Display letters left
+  letters_left &lt;- if(i == 1){LETTERS # Update letters as player guesses
+  } else {letters_left}
+  print(paste(&quot;Letters left:&quot;, paste(letters_left, collapse = &quot; &quot;))) # Create a string of alphabet then output
+   # Prompt player for a guess
+  guess &lt;- readline(prompt = paste(&quot;Enter guess number&quot;, i, &quot;then press &lt;enter&gt;: &quot;)) # Take a character string as an argument and provide a &quot;prompt&quot; entering a line of numeric or character data
+  
+  # Convert guess entry to uppercase
   guess &lt;- toupper(guess)
-  guess &lt;- str_split(guess, &quot;&quot;)
-  print(guess)
   
-}
+  # Check validity of guess
+  while (is.character(guess)) {
+  if(nchar(guess, type = &quot;chars&quot;) != 5) { # Check for non-5-letter words and reprompt guess
+    cat(&quot;Invalid entry: Not a 5-letter word. Please try again. \nLetters left:&quot;, letters_left) #\n breaks new line
+    guess &lt;- readline(prompt = paste(&quot;Enter guess number&quot;, i, &quot;then press &lt;enter&gt;: &quot;))
+    guess &lt;- toupper(guess)
+  } else if(!(guess %in% valid_list)) { # Check for non-valid words and reprompt guess
+    cat(&quot;Invalid entry: Not a valid word. Please try again. \nLetters left:&quot;, letters_left)
+    guess &lt;- readline(prompt = paste(&quot;Enter guess number&quot;, i, &quot;then press &lt;enter&gt;: &quot;))
+    guess &lt;- toupper(guess)
+  } else { 
+    feedback[[i]] &lt;- evaluate_guess(guess, solution) # Name the results of evaluate_guess() to record feedback
+    break # End loop so run evaluate_guess() is run only once
+  }
+  }
+  
+  # Update the list of letters guessed
+  guess_letters &lt;- str_split(guess, &quot;&quot;)[[1]]
+  letters_left &lt;- setdiff(letters_left, guess_letters) # Overwrite letters_left to remove letters of guess
+  
+  # Create a matrix of feedback for game summary
+  summary &lt;- matrix(unlist(feedback, use.names = FALSE), ncol = 5, byrow = TRUE)
+  dimnames(summary) &lt;-list(rep(&quot;&quot;, dim(summary)[1]), rep(&quot;&quot;, dim(summary)[2]))
+  
+  # Check if puzzle is solved
+  if(identical(guess_letters, solution)) {
+    cat(&quot;\nCongratulations, you won!\n\nGuess summary:\n&quot;)
+    print(noquote(summary)) # Print guess and feedback history without quotes
+    break # end loop
+  } else if (!identical(guess_letters, solution) &amp; i &lt; num_guesses) { 
+    # Loop to beginning, now with updated letter list for remaining guesses
+  } else {
+    cat(&quot;\nNo more guesses. Better luck next time! Solution:&quot;, solution, &quot;\n\nGuess summary:\n&quot;) # Loop ends, notify player of loss and correct solution
+    print(noquote(summary)) # Print guess and feedback history without quotes
+  }
+  
+  }
+  
+}</code></pre>
+<pre class="r"><code># Helper function to evaluate valid guesses
 
-#    while(nchar(guess) != word_length){
-#      guess &lt;- readline(paste(&quot;Invalid entry! Guess must have&quot;, word_length, &quot; characters&quot;))
-#    }
+evaluate_guess &lt;- function(guess, solution){
   
- # guess_vector &lt;- str_split(guess, &quot;&quot;)
+  library(tidyverse)
   
-play_wordle_KB(solution, valid_list, num_guesses)</code></pre>
-<pre><code>## [1] &quot;Hi! You have 6 chances to guess the 5 lettered word&quot;
-## [1] &quot;You have the following letters remaining: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z&quot;
-## Enter guess number 1 then press &lt;enter&gt;: 
-## [[1]]
-## character(0)</code></pre>
+  guess_letters &lt;- str_split(guess, &quot;&quot;)[[1]]
+  
+  for (i in 1:length(guess_letters)) {
+  output &lt;- case_when(guess_letters[] == solution[] ~ guess_letters[], # Fill in correct letter
+                      guess_letters[] %in% solution[] ~ &quot;*&quot;,
+                      guess_letters[] != solution[] ~ &quot;-&quot;
+                      )
+  }
+  print(paste(&quot;&quot;, guess_letters, &quot;\n&quot;, output, &quot;\n&quot;)) # Show guess, then feedback, then move to a new line
+  feedback &lt;- list(guess = guess_letters, output = output) # Create list of objects to be exported from function
+  return(feedback) # Export from function to store feedback
+}</code></pre>
+<p>#<code>{r Let&#39;s PLay!} # play_wordle_KB(solution, valid_list) #</code></p>
 </div>
 </div>
 
